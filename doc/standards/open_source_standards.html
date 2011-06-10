@@ -1,0 +1,874 @@
+<html>
+<head>
+  <title>Open Source Project Architecture Standards</title>
+  <link rel="StyleSheet" type="text/css" href="standards.css">
+</head>
+
+<body>
+  <h1>Open Source Project Architecture Standards</h1>
+
+  <p>
+    An attempt at documenting some of the standards found in use around the
+    various Open Source communities ...
+  </p>
+
+  <p>
+    The organization of this document is to try to establish a list
+    of the standards, some recommendations, importance, and at the
+    end a Plan of how to achieve these goals in the long run.
+  </p>
+
+  <h2>Definitions</h2>
+
+  <dl>
+    <dt>Project</dt>
+
+    <dd>
+      <p>
+        This primarily refers to the project as a whole.
+      </p>
+      <p>
+        In our case, the project is "Turmeric"
+      </p>
+    </dd>
+
+    <dt>Module</dt>
+
+    <dd>
+      <p>
+        This is a specific conceptual piece of the project.
+      </p>
+
+      <p>
+        In maven terms, this would be equivalent to a directory with
+        a pom.xml
+      </p>
+
+      <p>
+        Some people refer to this directory as a "project" as well,
+        and while that is legitimate and valid, for the purposes of
+        this document, we will refrain from using "project" to refer
+        to this concept.
+      </p>
+    </dd>
+
+    <dt>SCM</dt>
+
+    <dd>
+      <p>
+        Source Control Management.<br>
+        Can refer to Subversion (SVN) or Git.<br>
+        If we are talking about a specific implementation detail for
+        a specific SCM, then the SCM specific name will be used
+      </p>
+    </dd>
+  </dl>
+
+  <h2>Maven</h2>
+
+  <p>
+    Maven is the most common build tool for Open Source Java.
+  </p>
+
+  <p>
+    The most important tenet of maven is:
+  </p>
+
+  <blockquote>
+    "Convention over Configuration"
+  </blockquote>
+
+  <ol>
+    <li>Maven Structural POMs<br>
+    The main purpose of structural poms is to gain abilities to
+    perform project wide work via the build reactor.<br>
+    This is crucial for the release plugin.<br>
+    Also, many of the other plugins, have special modes when
+    operating in aggregate or reactor modes. (such as&nbsp;</li>
+
+    <li>Maven Parent POMs<br>
+    The use of a parent pom is encouraged for all of the modules
+    within the project.<br>
+    We definitely need 1 level deep, but 2 levels could serve the
+    greater needs of the core and toolchain better. (see "Project
+    Organization" section below)</li>
+
+    <li>Top level Project Standards
+
+      <ol>
+        <li>Plugin Configurations
+
+          <ol>
+            <li>Maven Compiler Plugin<br>
+            Standardize on a JDK/JRE version.<br>
+            Propose we stick with Java 1.6</li>
+
+            <li>Jar Plugin<br>
+            Do we have any manifest standards to adhere
+            to?<br></li>
+
+            <li>PMD Plugin</li>
+
+            <li>Findbugs Plugin</li>
+
+            <li>Cobertura Plugin (Test Coverage)</li>
+
+            <li>Enforcer Plugin<br>
+            Setup rules as needed.<br>
+            First potential rule is minimum maven version.
+            (Proposed: maven 2.2.1)</li>
+
+            <li>Toolchain Plugins<br>
+            Custom plugins (such as maven-soa-plugin) should go
+            here</li>
+          </ol>
+        </li>
+
+        <li>Dependencies
+
+          <ol>
+            <li>Junit Version<br>
+            Propose we stick with 4.4 for now (upgrade to 4.8.1 in
+            future)</li>
+
+            <li>3rd Party Versions<br>
+            This is where you would identify the artifacts for your
+            3rd party items, and the versions that the project as a
+            whole will use.</li>
+
+            <li>Shared Project Versions
+
+              <ol>
+                <li>The parent pom should declare an overall
+                version for the project, that all modules
+                share.</li>
+
+                <li>The development time version should end in
+                -SNAPSHOT<br>
+                Suggestion 1.0.0.turmeric-SNAPSHOT is a good
+                starting point. (This would also help eBay identify
+                what artifacts are part of the turmeric effort)<br>
+                We should implement this common version now, and
+                work to establish this version across the board for
+                all of the modules and parent pom.<br>
+                We can change this version to something more in
+                line with reality at any point after we have
+                established the appropriate plumbing in the parent
+                poms.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+
+    <li>Module Layout Standards<br>
+
+      <table border="1" cellpadding="5" cellspacing="0">
+        <tbody>
+          <tr>
+            <th>Dir</th>
+            <th>Purpose</th>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/java</td>
+
+            <td>Place for java source files that will end up in the
+            jar/war package.<br>
+            All other content in this directory is ignored during
+            the build.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/javadoc</td>
+
+            <td>Place for various javadoc additional content, such
+            as images, config files, package descriptions.<br>
+            Used by the maven-javadoc-plugin and contents show up
+            in the generated site, and -javadoc classifiers on the
+            build.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/resources</td>
+
+            <td>Place for various non-java source files that will
+            eventually end up in the jar/war package.<br>
+            All non-java source files will be placed into the
+            jar/war if found in here.<br>
+            Special care needs to be taken with
+            META-INF/MANIFEST.MF file to ensure it is merged with
+            other manifest manipulating plugins.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/model</td>
+
+            <td>Place for model descriptions for code generation
+            during build, can be xml, wsdl, json, etc (only really
+            limited by the code generation plugins in use)<br>
+            Contents of this directory do not show up in a jar/war
+            file.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/config</td>
+
+            <td>Place for extra configuration files, not suitable
+            for jar/war inclusion.<br>
+            Contents could show up in alternative classifiers, or
+            assemblies.<br>
+            Contents can also be used as alternative plugin
+            configuration source (such as checkstyle / pmd /
+            findbugs)</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/main/webapp</td>
+
+            <td>Place for webapp root, houses the WEB-INF, static
+            files, jsps, javascript, css, html, etc..</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/test/java</td>
+
+            <td>Place for java source junit test code only.<br>
+            Compiled classes from this tree do not show up in the
+            jar/war package.<br>
+            However, it is possible to package these with the -test
+            classifier and the maven-test-plugin</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/test/resources</td>
+
+            <td>Place for resources used during junit testing.<br>
+            The content in here overrides any similar content found
+            in src/main/resources<br>
+            (in other words it will be listed before
+            src/main/resources in the classpath)</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/it/java</td>
+
+            <td>Place for integration testing.<br>
+            Note: the maven-it-plugin doesn't require this, and it
+            would be better to organize these kinds of tests into a
+            standalone Integration Testing (IT) project
+            anyway.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/src/it/resource</td>
+
+            <td>Place for integration testing resources.<br>
+            Often used as a place for integration
+            configuration.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/target</td>
+
+            <td>The build and working directory for the maven
+            build.<br>
+            This is the standard nomenclature for java
+            &lt;packaging&gt;jar&lt;/packaging&gt; and
+            &lt;packaging&gt;webapp&lt;/packaging&gt; builds.<br>
+            It can be different for non-standard packaging such as
+            "apk", "dot-net", "native-lib", etc ...<br></td>
+          </tr>
+
+          <tr>
+            <td>MODULE/target/generated-${pluginid}-${goal}/</td>
+
+            <td>These are plugin generated / managed / attached
+            directories<br>
+            This is the standard for plugins that generate code
+            used by the build.<br>
+            The plugin itself can attach this directory to the
+            build at the appropriate build scope.<br>
+            m2eclipse plugin is capable of identifying these plugin
+            attached directories and will make them appropriate
+            build directories automatically.</td>
+          </tr>
+
+          <tr>
+            <td>MODULE/target/tests/*</td>
+
+            <td>This is the top level directory for unit testing to
+            utilize for transient / temporary / work
+            directories.<br>
+            Often the testing framework of choice is supplemented
+            to auto generate appropriate names for the directory to
+            use based on the unit testing class and method.<br>
+            Example:
+            MODULE/target/tests/com.ebay.turmeric.GuidTest.testNextISOGuid/</td>
+          </tr>
+        </tbody>
+      </table>
+    </li>
+
+    <li>Release Requirements (for Central repository)
+
+      <ol>
+        <li>All modules in the project should strive to be version
+        locked (meaning, they all have the same version)<br>
+          Note: the /toolchain/ and /turmeric-project/ trees are
+          the exceptions to this rule (these 2 trees will be moved
+          out of the /SOAProject/trunk/ in the future.
+
+          <ol>
+            <li>When working on the code between releases, the
+            version should include -SNAPSHOT to indicate that it is
+            not yet blessed (possibly unstable)</li>
+
+            <li>When releasing, using the maven-release-plugin...
+
+              <ol>
+                <li>all snapshot versions will be automatically
+                incremented to the release version.</li>
+
+                <li>the release is built</li>
+
+                <li>the release is tagged in scm</li>
+
+                <li>the versions are incremented again to the next
+                development version.</li>
+
+                <li>the SCM tree (trunk) is commited with this next
+                development version.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+
+        <li>No plugins versions can be SNAPSHOT versioned for a
+        release. (this is a rule of the maven-release-plugin)</li>
+
+        <li>In order to have artifacts that make it into the
+        central repository the builds <u>must have</u> the
+        following in place.</li>
+      </ol>
+
+      <p style="margin-left: 2em">
+        <ol>
+          <li>Licensing files for each module.</li>
+
+          <li>This means a file with the declared license, such as
+          LICENSE.txt</li>
+
+          <li>Licensing present in packaged artifact.</li>
+
+          <li>Module poms contain License declaration</li>
+
+          <li>Module poms contain url for project</li>
+
+          <li>Module poms contain at least 1 declared
+          developer</li>
+
+          <li>Module poms contain <u>no</u> repository
+          definitions</li>
+
+          <li>Module poms contain dependencies accessible via
+          central repository</li>
+
+          <li>This means we can't depend on internal dependencies
+          that are themselves unreleased.</li>
+
+          <li>Concerned with uKernel on this specific rule.</li>
+
+          <li>Javadoc classifier package (only for jar or war
+          artifacts with class files)</li>
+
+          <li>This means our release profile (maven concept) has
+          the maven-javadoc-plugin:jar goal declared</li>
+
+          <li>Source classifier package (for jar and war
+          artifacts)</li>
+
+          <li>This means our release profile (maven concept) has
+          the maven-source-plugin:jar goal declared</li>
+
+          <li>License text present in *.java and *.xml source files
+          present in source classifier</li>
+
+          <li>All artifacts, and poms are signed via gpg</li>
+
+          <li>This means our release profile (maven concept) has
+          the maven-gpg-plugin declared, and the release engineers
+          have a properly setup $HOME/.m2/settings.xml for their
+          gpg credentials.</li>
+        </ol>
+      </p>
+    </li>
+
+    <li>Shared Content<br>
+    If your build should need to share content between modules,
+    then an module / artifact / classifier should be created to
+    share that content with the other modules via the repository
+    system.<br>
+    Note: this artifact can be setup to not deploy during a release
+    if need be.</li>
+
+    <li>Build Levels<br>
+      The build can be as simple or as complex as the developer and
+      user wants it to be.<br>
+      Nothing is assumed to be minimum or required.<br>
+      It is appropriate to disable plugins and whatnot in module
+      poms if inappropriate. (such as setting the surefire plugin
+      to skip running if the project has no unit tests)<br>
+
+      <ol>
+        <li>Basic Artifact Build</li>
+
+        <li>Unit Testing</li>
+
+        <li>Packaging</li>
+
+        <li>Installation</li>
+
+        <li>Maven Repository Deployment</li>
+
+        <li>Integration Testing</li>
+
+        <li>Functional Testing</li>
+
+        <li>Report Generation (Individual and Aggregate)
+
+          <ol>
+            <li>JXR</li>
+
+            <li>Javadoc</li>
+
+            <li>Analysis Tools</li>
+
+            <li>Maven Project Information Reports</li>
+
+            <li>WSDL Documentation</li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol><br>
+
+  <h2>Continuous Integration</h2>The practice of Continuous
+  Integration of the build is a highly desired one and encourages a
+  stable source control and ensures that all appropriate testing is
+  performed.
+
+  <p>
+    Recommend: use of Hudson CI -&nbsp;<a href=
+    "http://hudson-ci.org/">http://hudson-ci.org/</a><br>
+    <br>
+
+    <p>
+      This should be done in stages.
+    </p>
+
+    <ol>
+      <li>Stage 1
+
+        <ol>
+          <li>Monitory the SVN repository and perform a build on
+          detected change.</li>
+
+          <li>Basic Build &amp; Unit Testing</li>
+
+          <li>Report on build or testing failures</li>
+        </ol>
+      </li>
+
+      <li>Stage 2
+
+        <ol>
+          <li>Runs at least once a day (nightly is a good time to
+          run this stage, as the analysis can be quite costly,
+          resources and time wise)</li>
+
+          <li>Can be enabled via a maven profile, or by just
+          declaring the plugins you wish to execute on the build
+          configuration</li>
+
+          <li>Add various analysis tooling (PMD, Findbugs,
+          etc...)</li>
+        </ol>
+      </li>
+
+      <li>Stage 3
+
+        <ol>
+          <li>If tests take a while to run, then run this
+          integration testing at least twice a week<br></li>
+
+          <li>If tests are quick, then run them at the same time as
+          Stage 1 (this is the desired mode, but often as projects
+          grown in size, this level of testing is broken out)</li>
+
+          <li>Integration Testing is performed.<br></li>
+
+          <li>The maven-it-plugin is often used as a kick-off for
+          this level of testing.</li>
+        </ol>
+      </li>
+
+      <li>Stage 4
+
+        <ol>
+          <li>Primarily a manually initiated build &amp; testing
+          level.<br>
+          It can be automated, but the events that trigger this
+          automation are very project specific. &nbsp;<br>
+          (It would be inappropriate to speculate on a good even at
+          this point in time.)</li>
+
+          <li>This is reserved for exhaustive automated testing,
+          across environments, browsers, etc..</li>
+
+          <li>This is sometimes called Functional testing.</li>
+
+          <li>Selenium is a typical tools seen at this level.</li>
+        </ol>
+      </li>
+    </ol>
+
+    <h2>Subversion</h2>
+
+    <p>
+      Subversion as a SCM
+    </p>
+
+    <ol>
+      <li>Subversion Properties<br>
+        <a href=
+        "http://svnbook.red-bean.com/en/1.1/ch07s02.html">SVN Redbook: Properties</a><br>
+
+
+        <ol>
+          <li><b>svn:ignore</b><br>
+          <a href=
+          "http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.3">
+          SVN Redbook: svn:ignore property</a><br>
+
+          Applies: Directory only.<br>
+          Purpose: To specify files in that directory to ignore
+          from update/commit flows in subversion.<br>
+          Importance: HIGH<br>
+          Suggestion: Ignore temporary files, Ignore maven target
+          (build) directory.<br>
+          Advanced: Ignore IDE project files. (They are best
+          managed by m2eclipse anyway)</li>
+
+          <li><b>svn:eol-style</b><br>
+          <a href=
+          "http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.5">
+          SVN Redbook: svn:eol-style property</a><br>
+
+          Applies: Files only (Text files ideally)<br>
+          Purpose: to specify the End of Line format for the text
+          files. Values are (native, lf, crlf)<br>
+          Importance: HIGH<br>
+          Suggestion: for *.java files, we should set this to
+          native. &nbsp;This will allow for more consistent
+          merging, as it will use the users own native eol
+          standards (Windows = CRLF, Unix or OSX = LF)<br>
+          From the point in time after this property is set, all
+          commits / diffs / merges and the like will be performed
+          on an EOL neutral standing. &nbsp;No environment specific
+          EOL settings will matter.<br>
+          Note: The first time this is set, you will experience a
+          merge. &nbsp;It is recommended that when this property is
+          set, all developers commit what they have, wait for
+          property to be set, then update (just to avoid the
+          merge)<br>
+          Since we, the developer community here, are on a variety
+          of environments, having this set is highly
+          encouraged.</li>
+
+          <li><b>svn:mime-type</b><br>
+          <a href=
+          "http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.2">
+          SVN Redbook: svn:mime-type property</a><br>
+
+          Applies: Files only (most files, text and binary)<br>
+          Purpose: to specify the mime-type of the file, to avoid
+          ambiguity, and to allow various SVN tooling to know how
+          to handle the files for merging, editing, and diff
+          purposes.<br>
+          Importance: MEDIUM to LOW<br>
+          Suggestion: set for Image files, and other Web Accessible
+          Content (html, css, xml, wsdl, xsd, etc...)</li>
+
+          <li><b>svn:executable</b><br>
+          <a href=
+          "http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.1">
+          SVN Redbook: svn:executable property</a><br>
+
+          Applies: Files only (files that are meant to be
+          executable)<br>
+          Purpose: to specify to the SVN that the tagged file is
+          executable.<br>
+          Importance: LOW<br>
+          Suggestion: Set for *.sh, *.bat, and *.cmd files</li>
+        </ol>
+      </li>
+
+      <li>IDE Project Files<br>
+        While it is common to include the IDE project files in
+        Subversion, in the long run, this should be
+        discouraged.<br>
+        The m2eclipse plugin is capable of importing raw maven 2
+        projects (without an existing .classpath and .project
+        files) anyway.<br>
+        The primary reasons for not including the IDE project files
+        are:
+
+        <ol>
+          <li>The .classpath and .project files (and .settings/*)
+          often contain user specific details that are incompatible
+          with other users</li>
+
+          <li>The contents of the .classpath and .project files
+          (and .settings/*) often contain details about the users
+          machine, userids, passwords (possibly encrypted) that
+          could present a security concern.</li>
+        </ol>
+      </li>
+    </ol>
+  </p>
+
+  <h2>Project Organization (Directories)</h2>
+
+  <p>
+    Special Directories
+  </p>
+
+  <ol>
+    <li><b>/toolchain/</b><br>
+    Importance: LOW (only when maven-soa-plugin is due to be
+    checked in)<br>
+    The toolchain are any projects that don't change very often,
+    and are used as part of the day to day build. &nbsp;<br>
+    The modules within this tree are versioned separately and
+    released separately.<br>
+    Ideally, this directory should live outside of the main
+    subversion trunk in it's own tree, but that is something we can
+    do at the very end of the entire process. &nbsp;Even after we
+    "go live" with our official open source repository at the end
+    of the project.</li>
+
+    <li><b>/toolchain/maven-soa-plugin/<br></b>Importance: MEDIUM
+    (but only when maven-soa-plugin source is due to be checked
+    in)<br>
+    Place for the maven-soa-plugin open source effort.<br></li>
+
+    <li><b>/toolchain/turmeric-enforcer-rules/<br></b>Importance:
+    LOW (only when needed)<br>
+    All larger projects tend to have custom enforcer rules.
+    &nbsp;They are varied in purpose, but are often valuable sanity
+    checks, even if they are only run during the formal release
+    process.<br>
+    This module houses all of our custom maven-enforcer-plugin
+    rules.</li>
+
+    <li><b>/turmeric-project/</b><br>
+    Importance: LOW (only needed when /toolchain/ starts to
+    exist)<br>
+    The purpose of this directory is to house the top level parent
+    pom that is shared amongst all project modules within the tree.
+    &nbsp;This includes custom work in /toolchain/ and the eclipse
+    plugins in /plugins/, as well as the more fundamental modules
+    present in the subversion tree.<br></li>
+  </ol>
+
+  <h2>Testing</h2>
+
+  <p>
+    Levels of testing:
+  </p>
+
+  <ol>
+    <li><b>Unit Tests:</b><br>
+    These are the tests found in src/test/java and are executed
+    with every build of the module.<br>
+    They should focus on testing single classes, or with only
+    classes found within the one module.<br>
+    If you find yourself writing tests that cross module
+    boundaries, then it is likely you are working with an
+    integration test.</li>
+
+    <li><b>Integration Tests:</b><br>
+    Integration of multiple modules and configurations to test how
+    the they interoperate.<br>
+    Typically find standards testing in this level, such as TCKs
+    and the like.<br>
+    Example of Maven itself using Integration Testing
+    -&gt;&nbsp;<a href=
+    "http://svn.apache.org/viewvc/maven/core-integration-testing/trunk/core-it-suite/src/test/resources/">http://svn.apache.org/viewvc/maven/core-integration-testing/trunk/core-it-suite/src/test/resources/</a></li>
+
+    <li><b>Web / Functional:</b><br>
+    With more modern testing, it is often important to test at a
+    higher level, and across multiple platforms and
+    environments.<br>
+    In our case, even multiple browsers.<br>
+    This is what Functional testing exists to address.<br>
+    Selenium testing is a very common technology found at this
+    level.</li>
+  </ol><br>
+  <font class="Apple-style-span" size="4"><b>Coding
+  Standards</b></font><br>
+
+  <ol>
+    <li>Apache Foundation - Codinging Style Guidelines. <a href=
+    "http://incubator.apache.org/ace/java-coding-style-guide.html"
+    id="i0_1" title=
+    "http://incubator.apache.org/ace/java-coding-style-guide.html">http://incubator.apache.org/ace/java-coding-style-guide.html</a></li>
+
+    <li>Eclipse Foundation - Coding Style Guidelines. <a href=
+    "http://wiki.eclipse.org/index.php/Development_Conventions_and_Guidelines"
+    id="jw1z" title=
+    "http://wiki.eclipse.org/index.php/Development_Conventions_and_Guidelines">
+    http://wiki.eclipse.org/index.php/Development_Conventions_and_Guidelines</a></li>
+  </ol>
+
+  <p><br></p>
+
+  <p>It is recommended that one of these two methods be choosen for
+  the entire project.&nbsp;&nbsp;</p>
+
+  <p>IDE's should be configured to match these guidelines, and
+  appropriate IDE specific items checked into the repository, so
+  they can be imported easily into the specific IDE.</p>
+
+  <p>Keeping the code formatted similiar helps with:</p>
+
+  <ol>
+    <li>Accepting patches easier.</li>
+
+    <li>Reading the code easier.</li>
+
+    <li>The less developers have to deal with formatting
+    differences the better.</li>
+  </ol>
+
+  <p><br></p>
+
+  <h2>Eclipse Plugin Structure</h2>
+
+  <p>
+    TODO:
+  </p>
+
+  <h2>Timeline to Implement Plans</h2>
+
+  <p>
+    The plan is to phase these changes into the codebase in small
+    batches, allow everyone to get comfortable with the changes,
+    provide input, etc.<br>
+    The goal of the plan is to avoid upheaval of the codebase with
+    any sort of massive change or flash cut philosophy.
+  </p>
+
+  <p>
+    The plans are always subject to change, but that change should
+    be based on input, concerns, and open discussion.
+  </p>
+
+  <p>
+    This is the general order of things on how to attain the goals
+    above:
+  </p>
+
+  <p>
+    The this organization, while linear in presentation, does not
+    have to occur one after another, this plenty of room for
+    parallelization within this organizational list.
+  </p>
+
+  <p>
+    Also, not all modules within the project must incur the change
+    simultaneously, a selection of modules can undergo this list of
+    changes inpidually as far as needed in the plan before moving
+    onto the next module.
+  </p>
+
+  <ol>
+    <li>Implement Maven Structural Poms</li>
+
+    <li>Establish SNAPSHOT Project Version (Suggest:
+    1.0.0.turmeric-SNAPSHOT) this will be extra clear in other
+    poms, and even be OSGi compatible.<br></li>
+
+    <li>Establish dependency and plugin standards in
+    turmeric-parent
+
+      <ol>
+        <li>Compiler Plugin to Java 1.6</li>
+
+        <li>Shared/Common modules declared in dependencyManagement
+
+          <ol>
+            <li>Junit to 4.4</li>
+
+            <li>SOAClient</li>
+
+            <li>SOAServer</li>
+
+            <li>BindingFwk</li>
+          </ol>
+        </li>
+
+        <li>Setup pluginManagement
+
+          <ol>
+            <li>maven-soa-plugin</li>
+
+            <li>maven-buildhelper-plugin</li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+
+    <li>Setup enforcer plugin in turmeric-parent pom
+
+      <ol>
+        <li>Establish Java minimum enforcement (JDK 1.6).</li>
+      </ol>
+    </li>
+
+    <li>Start applying turmeric-project parent across the entire
+    module tree</li>
+
+    <li>Change module versions to use established project
+    version.</li>
+
+    <li>Eliminate from module poms redundant plugin configurations
+    more suitable for turmeric-parent pom.</li>
+
+    <li>Establish svn:eol-style on subversion side<br>
+    Requires coordination with eBay.<br>
+    Should be done in stages, one module at a time.</li>
+
+    <li>Eliminate IDE project files from SCM.<br>
+    Can be accomplished in stages, one module at a time.</li>
+
+    <li>Setup SCM ignores on IDE project files.<br>
+    Can be performed in parallel with elimination of IDE project
+    files from SCM.</li>
+
+    <li>Put maven-soa-plugin source into /toolchain/maven-soa-plugin/</li>
+
+    <li>Adjust maven-soa-plugin to use internal project attachments
+    for generated content instead of relying on configuration
+    within the module pom.xml pointing to the generated content</li>
+
+    <li>Setup /turmeric-project/ parent pom for core and toolchain
+    to share.</li>
+
+    <li>Start migrating to better use of the maven resource plugins,
+    module structure, and updated maven-soa-plugin. </li>
+  </ol>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2006-2010 eBay Inc. All Rights Reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); 
+    you may not use this file except in compliance with the License. 
+    You may obtain a copy of the License at 
+   
+       http://www.apache.org/licenses/LICENSE-2.0
+       
+ -->
+<project>
+  <groupId>org.ebayopensource.plugins.testing</groupId>
+  <artifactId>CatalogProject</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>test-catalog-resource</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>jaxb-episode-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>xjc-episode</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <verbose>true</verbose>
+          <episodePath>META-INF/SOAClient.episode</episodePath>
+          <xsdEpisodeFile>${project.basedir}/schemas/tools/ServiceCodeGen.xsd</xsdEpisodeFile>
+          <catalog>
+            <uri-resources>
+              <uri-resource>
+                <name>../client/ClientConfig.xsd</name>
+                <resource>META-INF/soa/schema/client/ClientConfig.xsd</resource>
+              </uri-resource>
+              <uri-resource>
+                <name>../server/ServiceConfig.xsd</name>
+                <resource>META-INF/soa/schema/server/ServiceConfig.xsd</resource>
+              </uri-resource>
+            </uri-resources>
+            <!-- 
+            <public-resources>
+              <public-resource>
+                <publicId>../client/ClientConfig.xsd</publicId>
+                <resource>META-INF/soa/schema/client/ClientConfig.xsd</resource>
+              </public-resource>
+              <public-resource>
+                <publicId>../server/ServiceConfig.xsd</publicId>
+                <resource>META-INF/soa/schema/server/ServiceConfig.xsd</resource>
+              </public-resource>
+            </public-resources>
+            <system-resources>
+              <system-resource>
+                <systemId>../client/ClientConfig.xsd</systemId>
+                <resource>META-INF/soa/schema/client/ClientConfig.xsd</resource>
+              </system-resource>
+              <system-resource>
+                <systemId>../server/ServiceConfig.xsd</systemId>
+                <resource>META-INF/soa/schema/server/ServiceConfig.xsd</resource>
+              </system-resource>
+            </system-resources>
+               -->
+          </catalog>
+          <schemas>
+            <schema>${project.basedir}/schemas/library/LibraryType.xsd</schema>
+            <schema>${project.basedir}/schemas/library/sun-jaxb-episode.xsd</schema>
+            <schema>${project.basedir}/schemas/library/TypeDependencies.xsd</schema>
+            <schema>${project.basedir}/schemas/library/TypeInformation.xsd</schema>
+            <schema>${project.basedir}/schemas/errorLibrary/OrganizationErrorBlocks.xsd</schema>
+            <schema>${project.basedir}/schemas/errorLibrary/ErrorBundle.xsd</schema>
+            <schema>${project.basedir}/schemas/normalization/Normalization.xsd</schema>
+          </schemas>
+        </configuration>
+      </plugin>
+    </plugins>
+   </build>
+</project>
+

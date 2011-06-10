@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2006-2010 eBay Inc. All Rights Reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); 
+    you may not use this file except in compliance with the License. 
+    You may obtain a copy of the License at 
+   
+       http://www.apache.org/licenses/LICENSE-2.0
+       
+ -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ebayopensource.org/turmeric/tools/normalization"
+	xmlns:tns="http://www.ebayopensource.org/turmeric/tools/normalization"
+	elementFormDefault="qualified">
+
+	<element name="validationResponse" type="tns:ValidationResponse"></element>
+
+	<complexType name="ValidationResponse">
+		<sequence>
+			<element name="migrationItemList" type="tns:MigrationItem"
+				minOccurs="0" maxOccurs="unbounded"></element>
+			<element name="reportFilePath" type="anyURI"></element>
+		</sequence>
+
+		<attribute name="migrationStatus" type="tns:MigrationStatus"></attribute>
+		<attribute name="projectType" type="tns:ProjectType"></attribute>
+	</complexType>
+
+	<complexType name="MigrationItem">
+		<sequence>
+			<element name="ValidationRule" type="tns:ValidationRule"></element>
+			<element name="ValidationRuleExplanation" type="string"></element>
+			<element name="actionItemList" type="tns:ActionItem"
+				minOccurs="0" maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+
+
+	<complexType name="ActionItem">
+		<sequence>
+			<element name="rootCause" type="string" minOccurs="1"
+				maxOccurs="1"></element>
+			<element name="risksIfNotFixed" type="string" minOccurs="1"
+				maxOccurs="1"></element>
+			<element name="correctiveAction" type="string" minOccurs="1"
+				maxOccurs="1"></element>
+			<element name="issueSeverity" type="tns:IssueSeverity"></element>
+		</sequence>
+	</complexType>
+
+
+	<simpleType name="IssueSeverity">
+		<restriction base="string">
+			<enumeration value="CRITICAL"></enumeration>
+			<enumeration value="NOT_CRITICAL"></enumeration>
+		</restriction>
+
+	</simpleType>
+
+	<simpleType name="MigrationStatus">
+		<restriction base="string">
+			<enumeration value="NO_NEED_TO_MIGRATE"></enumeration>
+			<enumeration value="NEED_TO_MIGRATE"></enumeration>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="ValidationRule">
+		<restriction base="string">
+			<enumeration
+				value="Target name space of Service is not following eBay standard"></enumeration>
+			<enumeration value="Namespace2Pkg Conflict"></enumeration>
+			<enumeration value="Svcs should depend on market place Type Libraries"></enumeration>
+			<enumeration value="Svcs jars should be in proper location"></enumeration>
+			<enumeration value="ClientConfig.xml does not have a group name"></enumeration>
+			<enumeration value="GlobalClientConfig.xml should not be present"></enumeration>
+			<enumeration value="ServiceConfig.xml does not have a group name"></enumeration>
+			<enumeration value="GlobalServiceConfig.xml should not be present"></enumeration>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="ProjectType">
+		<restriction base="string">
+			<enumeration value="INTERFACE"></enumeration>
+			<enumeration value="IMPL"></enumeration>
+			<enumeration value="CONSUMER"></enumeration>
+			<enumeration value="TYPE_LIBRARY"></enumeration>
+		</restriction>
+
+	</simpleType>
+
+
+	<!-- the template which has the details for migration -->
+	<element name="templates" type="tns:Templates"></element>
+
+	<complexType name="Templates">
+		<sequence>
+			<element name="migrationItemsTemplate" type="tns:MigrationItemTemplate"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="MigrationItemTemplate">
+		<sequence>
+			<element name="migrationItemList" type="tns:MigrationItemList"></element>
+		</sequence>
+	</complexType>
+
+
+	<complexType name="MigrationItemList">
+		<sequence>
+			<element name="migrationItem" type="tns:MigrationItem"
+				minOccurs="0" maxOccurs="unbounded"></element>
+		</sequence>
+	</complexType>
+
+
+
+
+</schema>

@@ -1,0 +1,10 @@
+^<\?xml.*>\s*$
+^<\!--[\W\s]*$
+^[\W\s]* Copyright \(c\) 2006-2010 eBay Inc\. \s*All Rights Reserved\.[\W\s]*$
+^[\W\s]* Licensed under the Apache License, Version 2\.0 \(the "License"\);[\W\s]*$
+^[\W\s]* you may not use this file except in compliance with the License\.[\W\s]*$
+^[\W\s]* You may obtain a copy of the License at[\W\s]*$
+^[\W\s]*$
+^[\W\s]*\s{1,}http://www\.apache\.org/licenses/LICENSE-2\.0[\W\s]*$
+^[\W\s]*$
+^[\W\s]*-->\s*$

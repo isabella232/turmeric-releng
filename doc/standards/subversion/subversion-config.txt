@@ -1,0 +1,137 @@
+### This is an example $HOME/.subversion/config file
+###
+### This example does not contain the full set of configurable
+### options, only those pertinent to demonstrate ignores
+### and auto-props
+
+### Section for configuring miscelleneous Subversion options.
+[miscellany]
+
+### Set global-ignores to a set of whitespace-delimited globs
+### which Subversion will ignore in its 'status' output, and
+### while importing or adding files and directories.
+global-ignores = *.o *.lo *.la *# .*.rej *.rej .*~ *~ .#* .DS_Store *~ .*.swp *.log *.diff *.patch *.orig CVS
+
+### Set enable-auto-props to 'yes' to enable automatic properties
+### for 'svn add' and 'svn import', it defaults to 'no'.
+### Automatic properties are defined in the section 'auto-props'.
+enable-auto-props = yes
+
+### Section for configuring automatic properties.
+[auto-props]
+### The format of the entries is:
+###   file-name-pattern = propname[=value][;propname[=value]...]
+### The file-name-pattern can contain wildcards (such as '*' and
+### '?').  All entries which match will be applied to the file.
+### Note that auto-props functionality must be enabled, which
+### is typically done by setting the 'enable-auto-props' option.
+
+# runtime configuration:
+
+*.conf       = svn:eol-style=native;svn:keywords=Id
+*.config     = svn:eol-style=native;svn:keywords=Id
+*.ini        = svn:eol-style=native;svn:keywords=Id
+*.properties = svn:eol-style=native;svn:mime-type=text;svn:keywords=Id
+
+# scripts:
+
+*.exe     = svn:executable
+*.bat     = svn:eol-style=CRLF;svn:keywords=Id
+*.cmd     = svn:eol-style=CRLF;svn:keywords=Id
+*.sh      = svn:eol-style=LF;svn:executable;svn:keywords=Id
+*.ksh     = svn:eol-style=LF;svn:executable;svn:keywords=Id
+
+# source files:
+
+*.apt     = svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.c       = svn:eol-style=native;svn:keywords=Id
+*.cpp     = svn:eol-style=native;svn:keywords=Id
+*.cxx     = svn:eol-style=native;svn:keywords=Id
+*.h       = svn:eol-style=native;svn:keywords=Id
+*.hpp     = svn:eol-style=native;svn:keywords=Id
+*.hxx     = svn:eol-style=native;svn:keywords=Id
+*.java    = svn:eol-style=native;svn:mime-type=text/plain;svn:keywords=Author Date Id Revision
+*.jsp     = svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.js      = svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.pl      = svn:eol-style=native;svn:keywords=Id
+*.rss     = svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.sql     = svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.svg     = svn:eol-style=native;svn:mime-type=text/xml;svn:keywords=Author Date Id Revision
+*.iss     = svn:eol-style=native;svn:keywords=Id
+*.txt     = svn:eol-style=native;svn:mime-type=text/plain;svn:keywords=Author Date Id Revision
+
+*.htm     = svn:mime-type=text/html;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.html    = svn:mime-type=text/html;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.css     = svn:mime-type=text/css;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.xml     = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.pom     = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.xsd     = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.xsl     = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.xslt    = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+*.jelly   = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Author Date Id Revision
+
+# SOA types:
+
+*.episode = svn:eol-style=native;svn:mime-type=text/xml
+*.wsdl    = svn:eol-style=native;svn:mime-type=text/xml
+*.WSDL    = svn:eol-style=native;svn:mime-type=text/xml
+
+# Java types:
+
+MANIFEST.MF = svn:eol-style=native;svn:mime-type=text/plain
+*.class   = svn:mime-type=application/java
+*.jar     = svn:mime-type=application/java-archive
+*.war     = svn:mime-type=application/java-archive
+
+# Eclipse types:
+
+.classpath = svn:eol-style=native;svn:mime-type=text/xml
+.project   = svn:eol-style=native;svn:mime-type=text/xml
+*.prefs    = svn:eol-style=native;svn:mime-type=text/xml
+*.launch   = svn:eol-style=native;svn:mime-type=text/xml
+*.target   = svn:eol-style=native;svn:mime-type=text/xml
+
+# Microsoft Visual C++ types:
+
+*.dsp     = svn:eol-style=CRLF
+*.dsw     = svn:eol-style=CRLF
+*.rc      = svn:eol-style=CRLF;svn:keywords=Id
+
+# Mime application types:
+
+*.doc     = svn:mime-type=application/msword
+*.dot     = svn:mime-type=application/msword
+*.pdf     = svn:mime-type=application/pdf
+*.eps     = svn:mime-type=application/postscript
+*.rtf     = svn:mime-type=application/rtf
+*.swf     = svn:mime-type=application/x-shockwave-flash
+*.zip     = svn:mime-type=application/zip
+*.gz      = svn:mime-type=application/gzip
+
+# Mime image types:
+
+*.png     = svn:mime-type=image/png
+*.ico     = svn:mime-type=image/x-icon
+*.jpg     = svn:mime-type=image/jpeg
+*.gif     = svn:mime-type=image/gif
+*.tif     = svn:mime-type=image/tiff
+
+# types used in programming projects:
+
+*.csv     = svn:eol-style=native;svn:mime-type=text/plain
+*.in      = svn:eol-style=native;svn:keywords=Id
+
+configure = svn:eol-style=native;svn:keywords=Id
+
+ChangeLog = svn:eol-style=native;svn:keywords=Author Date Id Revision
+Copying   = svn:eol-style=native;svn:keywords=Author Date Id Revision
+FAQ       = svn:eol-style=native;svn:keywords=Author Date Id Revision
+Install   = svn:eol-style=native;svn:keywords=Author Date Id Revision
+INSTALL   = svn:eol-style=native;svn:keywords=Author Date Id Revision
+Manifest  = svn:eol-style=native;svn:keywords=Author Date Id Revision
+Makefile* = svn:eol-style=native;svn:keywords=Id
+News      = svn:eol-style=native;svn:keywords=Id
+Problems  = svn:eol-style=native;svn:keywords=Id
+Readme    = svn:eol-style=native;svn:keywords=Author Date Id Revision
+README    = svn:eol-style=native;svn:keywords=Author Date Id Revision
+ToDo      = svn:eol-style=native;svn:keywords=Author Date Id Revision

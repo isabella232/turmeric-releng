@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <!-- If you want to deploy content (SNAPSHOT or RELEASE) to the 
+       Nexus instance at http://ebayopensource.org/nexus/
+       You'll need an account, and then you can enable this section.
+
+       To get an account, create an INFRA issue requesting the account.
+       Include your svn userid in the request.
+  <servers>
+    <server>
+      <id>ebayopensource-repo</id>
+      <username>{your.username}</username>
+      <password>{your.password}</password>
+    </server>
+  </servers>
+    -->
+
+  <!-- Search Order for Maven Plugins not configured in a project -->
+  <pluginGroups>
+    <pluginGroup>com.ebayopensource.plugins.maven</pluginGroup>
+    <pluginGroup>com.ebay.ebox.plugins</pluginGroup>
+    <pluginGroup>org.mortbay.jetty</pluginGroup>
+    <pluginGroup>org.codehaus.mojo</pluginGroup>
+    <pluginGroup>org.sonatype.maven.plugins</pluginGroup>
+  </pluginGroups>
+
+  <profiles>
+    <profile>
+      <id>turmeric</id>
+
+      <pluginRepositories>
+        <pluginRepository>
+          <id>ebayopensource-releases</id>
+          <name>eBayOpenSource Release Repository</name>
+          <url>http://ebayopensource.org/nexus/content/repositories/releases</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+          <id>ebayopensource-snapshots</id>
+          <name>eBayOpenSource Snapshots Repository</name>
+          <url>http://ebayopensource.org/nexus/content/repositories/snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>interval:30</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+        </pluginRepository>
+        <pluginRepository> 
+           <id>codehaus</id> 
+           <name>CodeHaus</name> 
+           <url>http://snapshots.repository.codehaus.org/</url> 
+           <releases> 
+              <enabled>false</enabled> 
+           </releases> 
+           <snapshots> 
+             <enabled>true</enabled> 
+             <updatePolicy>interval:30</updatePolicy> 
+             <checksumPolicy>warn</checksumPolicy> 
+           </snapshots> 
+        </pluginRepository> 
+
+      </pluginRepositories>
+
+      <repositories>
+        <repository>
+          <id>ebayopensource-releases</id>
+          <name>eBayOpenSource Release Repository</name>
+          <url>http://ebayopensource.org/nexus/content/repositories/releases</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>ebayopensource-snapshots</id>
+          <name>eBayOpenSource Snapshots Repository</name>
+          <url>http://ebayopensource.org/nexus/content/repositories/snapshots</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>interval:30</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+        </repository>
+        <repository> 
+           <id>codehaus</id> 
+           <name>CodeHaus</name> 
+           <url>http://snapshots.repository.codehaus.org/</url> 
+           <releases> 
+              <enabled>false</enabled> 
+           </releases> 
+           <snapshots> 
+             <enabled>true</enabled> 
+             <updatePolicy>interval:30</updatePolicy> 
+             <checksumPolicy>warn</checksumPolicy> 
+           </snapshots> 
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>turmeric</activeProfile>
+  </activeProfiles>
+
+  <mirrors>
+    <mirror>
+      <id>ebayopensource</id>
+      <mirrorOf>central</mirrorOf>
+      <url>http://ebayopensource.org/nexus/content/groups/public</url>
+    </mirror>
+  </mirrors>
+
+</settings>

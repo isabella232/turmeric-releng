@@ -1,0 +1,4 @@
+REWRITE_SYSTEM "http://www.ebayopensource.org/turmeric/common/config/client/ClientConfig.xsd" "classpath:META-INF/soa/schema/client/ClientConfig.xsd"
+REWRITE_SYSTEM "http://www.ebayopensource.org/turmeric/common/config/server/ServiceConfig.xsd" "classpath:META-INF/soa/schema/server/ServiceConfig.xsd"
+REWRITE_SYSTEM "http://www.ebayopensource.org/turmeric/common/config/server/SecurityPolicy.xsd" "classpath:META-INF/soa/schema/server/SecurityPolicy.xsd"
+

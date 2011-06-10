@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2006-2010 eBay Inc. All Rights Reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); 
+    you may not use this file except in compliance with the License. 
+    You may obtain a copy of the License at 
+   
+       http://www.apache.org/licenses/LICENSE-2.0
+       
+ -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ebayopensource.turmeric.tests</groupId>
+  <artifactId>CatalogProject</artifactId>
+  <version>1-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.ebayopensource.turmeric.tests</groupId>
+      <artifactId>test-catalog-resource</artifactId>
+      <version>1</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/../deps/test-catalog-resource.jar</systemPath>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.7.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <extension>true</extension>
+              <schemaDirectory>${project.resources[0].directory}/META-INF/soa/schema</schemaDirectory>
+              <schemaIncludes>
+                <include>tools/*.xsd</include>
+                <include>library/*.xsd</include>
+                <include>errorLibrary/*.xsd</include>
+                <include>normalization/*.xsd</include>
+              </schemaIncludes>
+              <catalog>${project.resources[0].directory}/catalog.cat</catalog>
+              <catalogResolver>org.jvnet.jaxb2.maven2.resolver.tools.ClasspathCatalogResolver</catalogResolver>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!--
+      <plugin>
+        <artifactId>jaxb-episode-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>xjc-episode</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <verbose>true</verbose>
+          <episodePath>META-INF/SOAClient.episode</episodePath>
+          <xsdEpisodeFile>${project.basedir}/schemas/tools/ServiceCodeGen.xsd</xsdEpisodeFile>
+          <schemas>
+            <schema>${project.basedir}/schemas/library/LibraryType.xsd</schema>
+            <schema>${project.basedir}/schemas/library/sun-jaxb-episode.xsd</schema>
+            <schema>${project.basedir}/schemas/library/TypeDependencies.xsd</schema>
+            <schema>${project.basedir}/schemas/library/TypeInformation.xsd</schema>
+            <schema>${project.basedir}/schemas/errorLibrary/OrganizationErrorBlocks.xsd</schema>
+            <schema>${project.basedir}/schemas/errorLibrary/ErrorBundle.xsd</schema>
+            <schema>${project.basedir}/schemas/normalization/Normalization.xsd</schema>
+          </schemas>
+        </configuration>
+      </plugin>
+       -->
+    </plugins>
+   </build>
+</project>
+

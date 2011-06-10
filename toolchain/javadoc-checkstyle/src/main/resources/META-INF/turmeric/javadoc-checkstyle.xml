@@ -1,0 +1,25 @@
+<!DOCTYPE module PUBLIC
+"-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+"http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+    <module name="JavadocPackage"/>
+    <module name="TreeWalker">
+
+        <!-- Checks for Javadoc comments.                     -->
+        <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+        <module name="JavadocMethod">
+        	<property name="scope" value="package"/>
+        </module>
+        <module name="JavadocType">
+        	<property name="scope" value="package"/>
+        </module>
+        <module name="JavadocVariable">
+        	<property name="scope" value="package"/>
+        </module>	
+        <module name="JavadocStyle">
+			<property name="scope" value="package"/>
+        </module>
+    </module>
+
+</module>
+

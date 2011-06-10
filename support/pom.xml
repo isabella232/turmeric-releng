@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.ebayopensource.turmeric</groupId>
+    <artifactId>turmeric-project</artifactId>
+    <version>0.9.0-Beta-RC1</version>
+  </parent>
+  <groupId>org.ebayopensource.turmeric</groupId>
+  <artifactId>turmeric-support-parent</artifactId>
+  <version>1.0.0.turmeric-SNAPSHOT</version>
+  <name>Turmeric Parent :: Support</name>
+  <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:http://ph-0146.eva.ebay.com/svn/turmeric/soa-platform/branches/turmeric-0.9.0-test-release/support</connection>
+    <developerConnection>scm:svn:http://ph-0146.eva.ebay.com/svn/turmeric/soa-platform/turmeric-0.9.0-test-release/support</developerConnection>
+  </scm>
+  <modules>
+    <module>slf4j-to-jul</module>
+    <module>turmeric-junit</module>
+  </modules>
+</project>

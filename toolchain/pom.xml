@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ================================================================== -->
+<!--  Copyright (c) 2006-2010 eBay Inc. All Rights Reserved.            -->
+<!--  Licensed under the Apache License, Version 2.0 (the "License");   -->
+<!--  you may not use this file except in compliance with the License.  -->
+<!--  You may obtain a copy of the License at                           -->
+<!--                                                                    -->
+<!--     http://www.apache.org/licenses/LICENSE-2.0                     -->
+<!-- ================================================================== -->
+<project
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.ebayopensource.turmeric</groupId>
+    <artifactId>turmeric-project</artifactId>
+    <version>0.9.0-Beta-RC1</version>
+    <relativePath>../turmeric-project/pom.xml</relativePath>
+  </parent>
+  <groupId>org.ebayopensource.turmeric.toolchain</groupId>
+  <artifactId>turmeric-toolchain-parent</artifactId>
+  <name>Turmeric Parent :: Tool Chain</name>
+  <version>1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:http://ph-0146.eva.ebay.com/svn/turmeric/soa-platform/trunk/toolchain</connection>
+    <developerConnection>scm:svn:http://ph-0146.eva.ebay.com/svn/turmeric/soa-platform/trunk/toolchain</developerConnection>
+  </scm>
+  <modules>
+    <!-- Not in use (yet)
+    <module>analysis-rulesets</module>
+      -->
+    <module>jaxb-episode-maven-plugin</module>
+    <module>license-check-maven-plugin</module>
+    <module>banned-references-maven-plugin</module>
+    <module>config-validation-maven-plugin</module>
+    <module>maven-standards-maven-plugin</module>
+  </modules>
+</project>

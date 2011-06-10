@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <!-- Tone down the checking for test code -->
+    <suppress checks="Javadoc" files=".*[\\/]src[\\/]tests[\\/]"/>
+    <suppress checks="Javadoc" files=".*[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="Javadoc" files=".*[\\/]gen-test-src[\\/]"/>
+
+    <!-- ignore legacy generated areas entirely -->
+    <suppress checks="Javadoc" files=".*[\\/]gen-src[\\/]"/>
+    <suppress checks="Javadoc" files="[/\\]impl[/\\]"/>
+    <suppress checks="Javadoc" files=".*Consumer\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]PolicyServiceImpl\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]GroupMembershipServiceImpl\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]RateLimiterServiceImpl\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]AuthenticationServiceImpl\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]AuthorizationServiceImpl\.java"/>
+    <suppress checks="Javadoc" files=".*[\\/]PolicyEnforcementServiceImpl\.java"/>
+    
+
+
+    <!--
+      Turn off all checks for Generated and Test code. Fixes issues with using
+      Eclipse plug-in.
+      -->
+    <suppress checks="." files=".*[\\/]target[\\/]generated"/>
+    <suppress checks="." files=".*[\\/]grammars[\\/]Generated[a-zA-Z]*\.java"/>
+    <suppress checks="." files=".*[\\/]grammars[\\/]Generated[a-zA-Z]*\.java"/>
+    <suppress checks="." files=".*[\\/]checkstyle[\\/]gui[\\/]"/>
+</suppressions>

@@ -1,0 +1,15 @@
+target
+build
+.classpath
+.project
+temp_per*.xml
+ConfigRoot
+.settings
+gen-src
+gen-meta-src
+gen-web*
+gen-test
+turmeric.log
+*.log
+
+

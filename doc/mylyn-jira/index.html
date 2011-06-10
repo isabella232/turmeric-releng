@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title>Integrating Eclipse Mylyn with Jira</title>
+    <style type="text/css">
+img.screenshot {
+    display: block;
+    margin-left: 50px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+table.settings th {
+    text-align: left;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Integrating Eclipse Mylyn with Jira</h1>
+    <p>
+      Prerequisites:
+    </p>
+    <ol>
+      <li>Eclipse Helios - JEE edition</li>
+      <li>Ability to access Jira at <a href="http://ph-0146.eva.ebay.com/jira">http://ph-0146.eva.ebay.com/jira</a><br/>
+          Go ahead, open it in your browser.
+      </li>
+      <li>An active account on Jira at <a href="http://ph-0146.eva.ebay.com/jira">http://ph-0146.eva.ebay.com/jira</a><br/>
+          Try to log in with your browser.
+      </li>
+    </ol>
+    
+    <h2>Open Planning Perspective</h2>
+    <p>
+      First thing to do when Eclipse is started, is to open up the 'Planning' Perspective.
+    </p>
+    <img class="screenshot" src="opening-other-perspective.jpg" />
+    <img class="screenshot" src="planning-perspective.jpg" />
+    
+    <h2>Add Task Repository</h2>
+    <p>
+      Now we want to add a 'Turmeric Jira' Task Repository that provides
+      the source for our queries. (more on queries later)
+    </p>
+    <p>
+      Open the pull down in the task list tab (the button/icon has a down arrow).
+    </p>
+    <p>
+      Choose the option for "Add Repository...".
+    </p>
+    <img class="screenshot" src="add-repository.jpg" />
+    <p>
+      You will likely see a list of Repository types.
+      <br/>
+      Jira is not listed by default.
+    </p>
+    <img class="screenshot" src="add-task-repository-1.jpg" />
+    <p>
+      Click "Install More Connectors".
+    </p>
+    <p>
+      Type "Atlassian" in the find box.
+    </p>
+    <p>
+      Select/Check the Jira entry and click the button for "Finish".
+    </p>
+    <img class="screenshot" src="add-task-repository-2.jpg" />
+    <p>
+      After a few dialogs to verify the license and whatnot of the connector,
+      you will likely see a dialog asking you to restart.
+      <br/>
+      Go ahead and restart the eclipse session.
+    </p>
+    <img class="screenshot" src="software-updates-restart-now.jpg" />
+    <p>
+      When you get back into eclipse, re-open the "Add Repository..." dialog
+      and you should now have a choise for "JIRA".
+    </p>
+    <p>
+      Choose "JIRA" and click "Next".
+    </p>
+    <img class="screenshot" src="add-task-repository-3.jpg" />
+    <p>
+      Provide the details needed in the dialog below.<br/>
+      <i>(Obviously, use your own userid and password)</i>
+    </p>
+    <img class="screenshot" src="add-task-repository-4.jpg" />
+    <p>
+      Validate your setup, click the "Validate Settings" button.<br/>
+      You should see a message in the top of the dialog that says
+      "Authentication credentials are valid."
+    </p>
+    <p>
+      Click the "Finish" button.
+    </p>
+    <img class="screenshot" src="add-task-repository-5-authn-valid.jpg" />
+    <p>
+      When you are done adding the new task repository, Eclipse will
+      ask you if you want to setup a new query.  Go ahead and do so.
+      <br/>
+      Click "Yes".
+    </p>
+    <img class="screenshot" src="add-task-repository-6-add-new-query.jpg" />
+    
+    <h2>Creating Query for Your Open Tasks</h2>
+    <p>
+      We are creating a new Query.
+      <br/>
+      Use the "Create query using form" option.
+    </p>
+    <img class="screenshot" src="new-jira-query-1.jpg" />
+    <p>
+      For this section, fill out the following values.
+    </p>
+    <table border="0" class="settings">
+      <tr>
+        <th>Query Title:</th>
+        <td>My Open Tickets</td>
+      </tr>
+      <tr>
+        <th>Project:</th>
+        <td>All Projects</td>
+      </tr>
+      <tr>
+        <th>Type:</th>
+        <td>Any</td>
+      </tr>
+      <tr>
+        <th>Assigned To:</th>
+        <td>(Specified User): <i>{your userid}</i></td>
+      </tr>
+      <tr>
+        <th>Status:</th>
+        <td>Open, In Progress, Reopened</td>
+      </tr>
+      <tr>
+        <th>Resolution:</th>
+        <td>Unresolved</td>
+      </tr>
+    </table>
+    <p>
+      Click "Finish" button.
+    </p>
+    <img class="screenshot" src="new-jira-query-2.jpg" />
+    
+    <h2>Success</h2>
+    <p>
+      After some initial synchronization, you should now have a list of
+      any of your open tasks from Jira.
+    </p>
+    <img class="screenshot" src="success-task-list.jpg" />
+  </body>
+</html>

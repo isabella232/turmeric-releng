@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <title>Subversion Configuration</title>
+    <style type="text/css">
+    iframe.config {
+        width: 60em;
+        height: 30em;
+        border: 1px solid black;
+    }
+    
+    div.sample {
+        margin: 20px;
+    }
+    
+    div.sample .heading {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    div.sample .footer {
+        font-family: monospace;
+    }
+    
+    p code,
+    li code {
+        background-color: #ffff88;
+    }
+    img.screenshot {
+        display: block;
+        margin-left: 50px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    </style>
+  </head>
+  <body>
+    <h1>Subversion Configuration</h1>
+    <p>
+      In order to benefit yourself, and all of the other developers within 
+      the Turmeric project, it is strongly advised that you configure
+      your own subversion client with at least some basic <code>[auto-props]</code>.
+    </p>
+    
+    <div class="sample">
+    <div class="heading">Example Subversion Config</div>
+    <iframe src="subversion-config.txt" class="config">
+    </iframe>
+    <div class="footer"><a href="subversion-config.txt">subversion-config.txt</a></div>
+    </div>
+    
+    <h2>Windows: TortoiseSVN Configuration</h2>
+    <p>
+      To configure your TortoiseSVN config file, open up the "Settings"
+      menu choice in the standard right click menu on your windows explorer
+      folders.
+    </p>
+    <img class="screenshot" src="tortoisesvn-menu.jpg" />
+    <p>
+      Next, use the button "Edit" for the "Subversino configuration file" 
+      to open up your notepad editor to the configuration file that 
+      TortoiseSVN uses.
+    </p>
+    <p>
+      Ensure you have <code>enable-auto-props = yes</code> set in your
+      configuration file.
+    </p>
+    <img class="screenshot" src="tortoisesvn-settings-dialog.jpg" />
+    
+    <h2>Linux</h2>
+    <p>
+      In linux this configuration is easy.
+    </p>
+    <ol>
+      <li>Edit your <code>$HOME/.subversion/config</code> file</li>
+      <li>Ensure you have <code>enable-auto-props = yes</code> set</li>
+      <li>Add the missing <code>[auto-props]</code> entries from the example above</li> 
+    </ol>
+  </body>
+</html>
