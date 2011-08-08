@@ -15,14 +15,14 @@ public class HectorManager {
 	public static Cluster getOrCreateCluster(){
 		//retreive form properties
 		//clusterName, hostIp
-		return HFactory.getOrCreateCluster("TurmericCluster", "localhost:9160");
+		return HFactory.getOrCreateCluster("TurmericCluster", "192.168.0.7:9160");
 	}
 	
 	public static Keyspace getKeyspace(){
 		//retreive form properties
 		//Keyspace
 		if(keyspace == null){
-			keyspace = HFactory.createKeyspace("turmeric", getOrCreateCluster());
+			keyspace = HFactory.createKeyspace("turmeric_rate_limiter", getOrCreateCluster());
 		}
 		return keyspace;
 	}
