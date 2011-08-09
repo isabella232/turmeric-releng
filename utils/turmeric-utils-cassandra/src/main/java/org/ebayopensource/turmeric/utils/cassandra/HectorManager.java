@@ -6,34 +6,67 @@ import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
+import me.prettyprint.hector.api.query.ColumnQuery;
+import me.prettyprint.hector.api.query.Query;
 
 
 public class HectorManager {
 
 	private static Keyspace keyspace;
+	private final static StringSerializer serializer = StringSerializer.get();
+	
+	private static Mutator mutator;
 	
 	public static Cluster getOrCreateCluster(){
 		//retreive form properties
 		//clusterName, hostIp
-		return HFactory.getOrCreateCluster("TurmericCluster", "192.168.0.7:9160");
+		return HFactory.getOrCreateCluster("TurmericCluster", "192.168.2.101:9160");
 	}
 	
-	public static Keyspace getKeyspace(){
+	public static Keyspace getKeyspace(final String space){
 		//retreive form properties
 		//Keyspace
 		if(keyspace == null){
-			keyspace = HFactory.createKeyspace("turmeric_rate_limiter", getOrCreateCluster());
+			keyspace = HFactory.createKeyspace(space, getOrCreateCluster());
+			mutator = HFactory.createMutator(keyspace, serializer);
 		}
 		return keyspace;
 	}
 	
 	
 	
+	public static void insert(final String key, final String param, final String name, final String value){
+		try {
+			mutator.addInsertion(key, param,
+					HFactory.createStringColumn(name, value));
+			mutator.execute();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
-	
-	
-	
+//	public static String get(final String key, final String column, final String columnFamily  ){
+//		
+//		
+//		Query que =  new Query();
+//		que.
+//		
+//		ColumnQuery q = HFactory.createColumnQuery(keyspace, serializer, serializer, serializer);
+//		// set key, name, cf and execute
+//		Result r = q.setKey("key1").
+//		        setName(column).
+//		        setColumnFamily(columnFamily).
+//		        execute();
+//		// read value from the result
+//		HColumn c = r.get();
+//		String value =  c.getValue();
+//
+//		
+//		
+//	}
+//	
 	
 	
 	

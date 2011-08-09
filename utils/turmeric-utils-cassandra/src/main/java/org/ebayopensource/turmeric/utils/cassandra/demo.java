@@ -1,7 +1,8 @@
 package org.ebayopensource.turmeric.utils.cassandra;
 
+
+
 import me.prettyprint.cassandra.serializers.StringSerializer;
-import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
@@ -15,15 +16,15 @@ public class demo {
 	public static void main(String[] args) {
 
 		Keyspace keyspace = null;
-		Cluster cluster = HectorManager.getOrCreateCluster();
-		keyspace = HectorManager.getKeyspace();
+		keyspace = HectorManager.getKeyspace("Keyspace1");
+		
 		try {
 
 			Mutator m = HFactory.createMutator(keyspace, serializer);
 			
-			m.addInsertion("testbatch", "feed",
+			m.addInsertion("testbatch", "Standard1",
 					HFactory.createStringColumn("Type", "somevalue1"));
-			m.addInsertion("testbatch", "feed",
+			m.addInsertion("testbatch", "Standard1",
 					HFactory.createStringColumn("TypeBatch", "somevalue2"));
 			m.execute();
 			
@@ -34,4 +35,7 @@ public class demo {
 		}
 	}
 
+	
+
+	 
 }
