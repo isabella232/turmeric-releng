@@ -8,6 +8,12 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import org.ebayopensource.turmeric.utils.ContextUtils;
+
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
@@ -19,16 +25,17 @@ import me.prettyprint.hector.api.query.SliceQuery;
 
 public class HectorManager {
 
+	private static final String cassandraPropFilePath = "META-INF/config/cassandra/cassandra.properties";
+
+	private static final String c_hostIp = "cassandra-host-ip";
+	private static final String c_rpcPort = "cassandra-rpc-port";
+
 	private static Keyspace keyspace;
 	private final static StringSerializer serializer = StringSerializer.get();
-
 	private static Mutator mutator;
 
 	public static Cluster getOrCreateCluster() {
-		// retreive form properties
-		// clusterName, hostIp
-		return HFactory.getOrCreateCluster("TurmericCluster",
-				"192.168.2.101:9160");
+		return HFactory.getOrCreateCluster("TurmericCluster", getHost());
 	}
 
 	public static Keyspace getKeyspace(final String space) {
@@ -62,9 +69,33 @@ public class HectorManager {
 		createSliceQuery.setKey(key);
 		QueryResult<ColumnSlice<String, String>> execute2 = createSliceQuery
 				.execute();
-		execute2.get().getColumnByName(column).getValue();
+		return execute2.get().getColumnByName(column).getValue();
 
-		return execute2.toString();
+	}
+
+	private static String getHost() {
+		ClassLoader classLoader = ContextUtils.getClassLoader();
+		InputStream inStream = classLoader
+				.getResourceAsStream(cassandraPropFilePath);
+		String host = null;
+		if (inStream != null) {
+			Properties properties = new Properties();
+			try {
+				properties.load(inStream);
+				host = (String) properties.get(c_hostIp) + ":"
+						+ (String) properties.get(c_rpcPort);
+
+			} catch (IOException e) {
+				// ignore
+			} finally {
+				try {
+					inStream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		return host;
 	}
 
 }
