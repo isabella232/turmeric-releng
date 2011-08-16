@@ -29,9 +29,9 @@ public class HectorManager {
 
 	private static final String c_hostIp = "cassandra-host-ip";
 	private static final String c_rpcPort = "cassandra-rpc-port";
-
-	private static Keyspace keyspace;
 	private final static StringSerializer serializer = StringSerializer.get();
+	
+	private static Keyspace keyspace;
 	private static Mutator mutator;
 
 	public static Cluster getOrCreateCluster() {
@@ -42,15 +42,15 @@ public class HectorManager {
 		// Keyspace name retrieve form properties
 		if (keyspace == null) {
 			keyspace = HFactory.createKeyspace(space, getOrCreateCluster());
-			mutator = HFactory.createMutator(keyspace, serializer);
 		}
 		return keyspace;
 	}
 
-	public static void insert(final String columnFamily, final String key,
+	public static void insert(final String keyspace, final String columnFamily, final String key,
 			final String name, final String value) {
 		try {
-
+			
+			mutator = HFactory.createMutator(getKeyspace(keyspace), serializer);
 			mutator.insert(key, columnFamily,
 					HFactory.createStringColumn(name, value));
 
@@ -59,11 +59,11 @@ public class HectorManager {
 		}
 	}
 
-	public static String get(final String columnFamily, final String column,
+	public static String get(final String keyspace, final String columnFamily, final String column,
 			final String key) {
 
 		SliceQuery<String, String, String> createSliceQuery = HFactory
-				.createSliceQuery(keyspace, serializer, serializer, serializer);
+				.createSliceQuery(getKeyspace(keyspace), serializer, serializer, serializer);
 		createSliceQuery.setColumnFamily(columnFamily);
 		createSliceQuery.setColumnNames(column);
 		createSliceQuery.setKey(key);
