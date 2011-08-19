@@ -180,12 +180,12 @@
 			<dependency>
 				<groupId>com.ebay.kernel</groupId>
 				<artifactId>uKernelCore</artifactId>
-				<version>1.82</version>
+				<version>1.77</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ebay.kernel</groupId>
 				<artifactId>uKernel</artifactId>
-				<version>1.77</version>
+				<version>1.82</version>
 				<exclusions>
 					<!-- Replaced by org.apache.geronimo.specs:geronimo-javamail_1.4_spec -->
 					<exclusion>
