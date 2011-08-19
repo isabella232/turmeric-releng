@@ -57,6 +57,8 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	/** The all column names. */
 	private final String[] allColumnNames;
 
+    private String clusterName;
+
 	/**
 	 * Instantiates a new abstract column family dao.
 	 * 
@@ -71,11 +73,11 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * @param columnFamilyName
 	 *            the column family name
 	 */
-	public AbstractColumnFamilyDao(final String host, final String s_keyspace,
+	public AbstractColumnFamilyDao(final String clusterName, final String host, final String s_keyspace,
 			final Class<KeyType> keyTypeClass, final Class<T> persistentClass,
 			final String columnFamilyName) {
-		this.keySpace = HectorManager.getKeyspace(host, s_keyspace);
-		;
+	    this.clusterName = clusterName;
+		this.keySpace = HectorManager.getKeyspace(clusterName, host, s_keyspace);
 		this.keyTypeClass = keyTypeClass;
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;

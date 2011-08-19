@@ -27,77 +27,20 @@ import me.prettyprint.hector.api.query.SliceQuery;
  */
 public class HectorManager {
 
-//	private static final String cassandraPropFilePath = "META-INF/config/cassandra/cassandra.properties";
-//
-//	private static final String c_hostIp = "cassandra-host-ip";
-//	private static final String c_rpcPort = "cassandra-rpc-port";
-//	private final static StringSerializer serializer = StringSerializer.get();
-//	
 	private static Keyspace keyspace;
-	private static Mutator mutator;
 
-	public static Cluster getOrCreateCluster(final String host) {
-		return HFactory.getOrCreateCluster("TurmericCluster", host);
+	public static Cluster getOrCreateCluster(String clusterName , final String host) {
+		return HFactory.getOrCreateCluster(clusterName, host);
 	}
-
-	public static Keyspace getKeyspace(final String host, final String space) {
+	
+	
+	public static Keyspace getKeyspace(final String clusterName, final String host, final String kspace) {
 		// Keyspace name retrieve form properties
 		if (keyspace == null) {
-			keyspace = HFactory.createKeyspace(space, getOrCreateCluster(host));
+			keyspace = HFactory.createKeyspace(kspace, getOrCreateCluster(clusterName, host));
 		}
 		return keyspace;
 	}
 
-//	public static void insert(final String keyspace, final String columnFamily, final String key,
-//			final String name, final String value) {
-//		try {
-//			
-//			mutator = HFactory.createMutator(getKeyspace(keyspace), serializer);
-//			mutator.insert(key, columnFamily,
-//					HFactory.createStringColumn(name, value));
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-//
-//	public static String get(final String keyspace, final String columnFamily, final String column,
-//			final String key) {
-//
-//		SliceQuery<String, String, String> createSliceQuery = HFactory
-//				.createSliceQuery(getKeyspace(keyspace), serializer, serializer, serializer);
-//		createSliceQuery.setColumnFamily(columnFamily);
-//		createSliceQuery.setColumnNames(column);
-//		createSliceQuery.setKey(key);
-//		QueryResult<ColumnSlice<String, String>> execute2 = createSliceQuery
-//				.execute();
-//		return execute2.get().getColumnByName(column).getValue();
-//
-//	}
-//
-//	private static String getHost() {
-//		ClassLoader classLoader = ContextUtils.getClassLoader();
-//		InputStream inStream = classLoader
-//				.getResourceAsStream(cassandraPropFilePath);
-//		String host = null;
-//		if (inStream != null) {
-//			Properties properties = new Properties();
-//			try {
-//				properties.load(inStream);
-//				host = (String) properties.get(c_hostIp) + ":"
-//						+ (String) properties.get(c_rpcPort);
-//
-//			} catch (IOException e) {
-//				// ignore
-//			} finally {
-//				try {
-//					inStream.close();
-//				} catch (IOException e) {
-//					// ignore
-//				}
-//			}
-//		}
-//		return host;
-//	}
 
 }
