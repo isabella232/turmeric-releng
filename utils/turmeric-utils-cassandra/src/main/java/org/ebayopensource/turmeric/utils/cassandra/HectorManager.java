@@ -11,24 +11,18 @@ package org.ebayopensource.turmeric.utils.cassandra;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.factory.HFactory;
+
 /*
  * @author jamuguerza
  */
 public class HectorManager {
 
-	private static Keyspace keyspace;
+    public static Cluster getOrCreateCluster(final String clusterName, final String host) {
+        return HFactory.getOrCreateCluster(clusterName, host);
+    }
 
-	public static Cluster getOrCreateCluster(final String clusterName , final String host) {
-		return HFactory.getOrCreateCluster(clusterName, host);
-	}
-	
-	
-	public static Keyspace getKeyspace(final String clusterName, final String host, final String kspace) {
-		if (keyspace == null) {
-			keyspace = HFactory.createKeyspace(kspace, getOrCreateCluster(clusterName, host));
-		}
-		return keyspace;
-	}
-
+    public static Keyspace getKeyspace(final String clusterName, final String host, final String kspace) {
+        return HFactory.createKeyspace(kspace, getOrCreateCluster(clusterName, host));
+    }
 
 }
