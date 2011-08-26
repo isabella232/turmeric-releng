@@ -9,11 +9,14 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.HectorManager;
 
+import me.prettyprint.cassandra.model.QueryResultImpl;
+import me.prettyprint.cassandra.serializers.BytesArraySerializer;
 import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
@@ -56,6 +59,9 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	/** The all column names. */
 	private final String[] allColumnNames;
 
+	/** The column count. */
+	private final int columnCount;
+
 	/**
 	 * Instantiates a new abstract column family dao.
 	 * 
@@ -81,6 +87,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;
 		this.allColumnNames = HectorHelper.getAllColumnNames(persistentClass);
+		this.columnCount = HectorHelper.getColumnCount(persistentClass);
 	}
 
 	/**
@@ -110,11 +117,11 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * @return the t
 	 */
 	public T find(KeyType key) {
-		SliceQuery<Object, String, Object> query = HFactory.createSliceQuery(
+		SliceQuery<Object, String, byte[]> query = HFactory.createSliceQuery(
 				keySpace, SerializerTypeInferer.getSerializer(keyTypeClass),
-				StringSerializer.get(), ObjectSerializer.get());
+				StringSerializer.get(), BytesArraySerializer.get());
 
-		QueryResult<ColumnSlice<String, Object>> result = query
+		QueryResult<ColumnSlice<String, byte[]>> result = query
 				.setColumnFamily(columnFamilyName).setKey(key)
 				.setColumnNames(allColumnNames).execute();
 
@@ -205,7 +212,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 				.execute();
 		OrderedRows<Object, String, Object> orderedRows = result.get();
 
-		return (orderedRows.getCount() >= 0);
+		return (!orderedRows.getList().isEmpty());
 	}
 
 }

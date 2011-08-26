@@ -24,123 +24,131 @@ import java.util.List;
  */
 public final class HectorHelper {
 
-  private HectorHelper() {}
+	private HectorHelper() {
+	}
 
-  public static java.util.UUID getTimeUUID() {
-    return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
-  }
+	public static java.util.UUID getTimeUUID() {
+		return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
+	}
 
-  public static byte[] asByteArray(java.util.UUID uuid) {
-    long msb = uuid.getMostSignificantBits();
-    long lsb = uuid.getLeastSignificantBits();
-    byte[] buffer = new byte[16];
+	public static byte[] asByteArray(java.util.UUID uuid) {
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
+		byte[] buffer = new byte[16];
 
-    for (int i = 0; i < 8; i++) {
-      buffer[i] = (byte) (msb >>> 8 * (7 - i));
-    }
-    for (int i = 8; i < 16; i++) {
-      buffer[i] = (byte) (lsb >>> 8 * (7 - i));
-    }
+		for (int i = 0; i < 8; i++) {
+			buffer[i] = (byte) (msb >>> 8 * (7 - i));
+		}
+		for (int i = 8; i < 16; i++) {
+			buffer[i] = (byte) (lsb >>> 8 * (7 - i));
+		}
 
-    return buffer;
-  }
+		return buffer;
+	}
 
-  public static <T> List<HColumn<String, ?>> getColumns(T entity) {
-    try {
-      List<HColumn<String, ?>> columns = new ArrayList<HColumn<String, ?>>();
-      Field[] fields = entity.getClass().getDeclaredFields();
-      for (Field field : fields) {
-        field.setAccessible(true);
-        Object value = field.get(entity);
-        
-        if (value == null) {
-          // Field has no value so nothing to store
-          continue;
-        }
-        
-        String name = field.getName();
-        
-        HColumn<String, ?> column = HFactory.createColumn(name, value, StringSerializer.get(),
-          SerializerTypeInferer.getSerializer(value));
+	public static <T> List<HColumn<String, ?>> getColumns(T entity) {
+		try {
+			List<HColumn<String, ?>> columns = new ArrayList<HColumn<String, ?>>();
+			Field[] fields = entity.getClass().getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Object value = field.get(entity);
 
-        columns.add(column);
-      }
-      return columns;
-    }
-    catch (Exception e) {
-      throw new RuntimeException("Reflection exception", e);
-    }
-  }
+				if (value == null) {
+					// Field has no value so nothing to store
+					continue;
+				}
 
-  public static <T> List<HColumn<String, String>> getStringCols(T entity) {
-    try {
-      List<HColumn<String, ?>> cols = getColumns(entity);
-      List<HColumn<String, String>> retCols = new ArrayList<HColumn<String, String>>();
+				String name = field.getName();
 
-      for (HColumn<String, ?> col : cols) {
-        retCols.add(HFactory.createStringColumn(col.getName(), col.getValue().toString()));
-      }
+				HColumn<String, ?> column = HFactory.createColumn(name, value,
+						StringSerializer.get(),
+						SerializerTypeInferer.getSerializer(value));
 
-      return retCols;
-    }
-    catch (Exception e) {
-      throw new RuntimeException("Reflection away", e);
-    }
-  }
+				columns.add(column);
+			}
+			return columns;
+		} catch (Exception e) {
+			throw new RuntimeException("Reflection exception", e);
+		}
+	}
 
-  public static <T> void populateEntity(T t, QueryResult<ColumnSlice<String, Object>> result) {
-    try {
-      Field[] fields = t.getClass().getDeclaredFields();
-      for (Field field : fields) {
-        field.setAccessible(true);
-        String name = field.getName();
-        HColumn<String, Object> col = result.get().getColumnByName(name);
-        if (col == null || col.getValue() == null || col.getValueBytes().capacity() == 0) {
-          // No data for this col
-          continue;
-        }
+	public static <T> List<HColumn<String, String>> getStringCols(T entity) {
+		try {
+			List<HColumn<String, ?>> cols = getColumns(entity);
+			List<HColumn<String, String>> retCols = new ArrayList<HColumn<String, String>>();
 
-        Object val = SerializerTypeInferer.getSerializer(field.getType()).fromBytes(col.getValueBytes().array());
-        field.set(t, val);
-      }
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException("Reflection Error ", e);
-    }
-  }
+			for (HColumn<String, ?> col : cols) {
+				retCols.add(HFactory.createStringColumn(col.getName(), col
+						.getValue().toString()));
+			}
 
-  public static <T> Field getFieldForPropertyName(T entity, String name) {
-    try {
-      return entity.getClass().getDeclaredField(name);
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+			return retCols;
+		} catch (Exception e) {
+			throw new RuntimeException("Reflection away", e);
+		}
+	}
 
-  public static void populateEntityFromCols(Object entity, List<HColumn<String, String>> cols) {
+	public static <T> void populateEntity(T t,
+			QueryResult<ColumnSlice<String, byte[]>> result) {
+		try {
+			Field[] fields = t.getClass().getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				String name = field.getName();
+				HColumn<String, byte[]> col = result.get()
+						.getColumnByName(name);
+				if (col == null || col.getValue() == null
+						|| col.getValueBytes().capacity() == 0) {
+					// No data for this col
+					continue;
+				}
 
-    for (HColumn<String, ?> col : cols) {
-      Field f = getFieldForPropertyName(entity, col.getName());
-      try {
-        f.setAccessible(true);
-        f.set(entity, col.getValue());
-      }
-      catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
+				Object val = SerializerTypeInferer.getSerializer(
+						field.getType()).fromBytes(col.getValue());
+				field.set(t, val);
+			}
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Reflection Error ", e);
+		}
+	}
 
-  public static String[] getAllColumnNames(Class<?> entityClass) {
-    List<String> columnNames = new ArrayList<String>();
-    Field[] fields = entityClass.getDeclaredFields();
-    for (Field field : fields) {
-      field.setAccessible(true);
-      String name = field.getName();
-      columnNames.add(name);
-    }
+	public static <T> Field getFieldForPropertyName(T entity, String name) {
+		try {
+			return entity.getClass().getDeclaredField(name);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    return columnNames.toArray(new String[] {});
-  }
+	public static void populateEntityFromCols(Object entity,
+			List<HColumn<String, String>> cols) {
+
+		for (HColumn<String, ?> col : cols) {
+			Field f = getFieldForPropertyName(entity, col.getName());
+			try {
+				f.setAccessible(true);
+				f.set(entity, col.getValue());
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	public static String[] getAllColumnNames(Class<?> entityClass) {
+		List<String> columnNames = new ArrayList<String>();
+		Field[] fields = entityClass.getDeclaredFields();
+		for (Field field : fields) {
+			field.setAccessible(true);
+			String name = field.getName();
+			columnNames.add(name);
+		}
+
+		return columnNames.toArray(new String[] {});
+	}
+
+	public static int getColumnCount(Class<?> entityClass) {
+		String[] columnNames = getAllColumnNames(entityClass);
+		return columnNames.length;
+	}
 }

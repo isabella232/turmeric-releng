@@ -8,27 +8,35 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra;
 
+import org.ebayopensource.turmeric.utils.cassandra.service.CassandraManager;
+
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.factory.HFactory;
+
 /*
  * @author jamuguerza
  */
 public class HectorManager {
 
-	private static Keyspace keyspace;
-
-	public static Cluster getOrCreateCluster(final String clusterName , final String host) {
+	public static Cluster getOrCreateCluster(final String clusterName,
+			final String host) {
 		return HFactory.getOrCreateCluster(clusterName, host);
 	}
-	
-	
-	public static Keyspace getKeyspace(final String clusterName, final String host, final String kspace) {
-		if (keyspace == null) {
-			keyspace = HFactory.createKeyspace(kspace, getOrCreateCluster(clusterName, host));
-		}
-		return keyspace;
-	}
 
+	public static Keyspace getKeyspace(final String clusterName,
+			final String host, final String kspace) {
+
+		Keyspace ks = HFactory.createKeyspace(kspace,
+				getOrCreateCluster(clusterName, host));
+		
+//		if (ks == null){
+//			CassandraManager.createKeyspace(kspace);
+//			ks = HFactory.createKeyspace(kspace,
+//					getOrCreateCluster(clusterName, host));
+//		}
+		
+		return ks;
+	}
 
 }
