@@ -9,13 +9,8 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.ebayopensource.turmeric.utils.cassandra.HectorHelper;
-import org.ebayopensource.turmeric.utils.cassandra.HectorManager;
-
-import me.prettyprint.cassandra.model.QueryResultImpl;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
 import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
@@ -31,12 +26,13 @@ import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.SliceQuery;
 
-/*
- * @author jamuguerza
- */
+import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
+import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
+
+
 /**
  * The Class AbstractColumnFamilyDao.
- * 
+ * @author jamuguerza
  * @param <KeyType>
  *            the generic type
  * @param <T>
@@ -81,8 +77,8 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	public AbstractColumnFamilyDao(final String clusterName, final String host,
 			final String s_keyspace, final Class<KeyType> keyTypeClass,
 			final Class<T> persistentClass, final String columnFamilyName) {
-		this.keySpace = HectorManager
-				.getKeyspace(clusterName, host, s_keyspace);
+		this.keySpace = new HectorManager()
+				.getKeyspace(clusterName, host, s_keyspace, columnFamilyName);
 		this.keyTypeClass = keyTypeClass;
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;

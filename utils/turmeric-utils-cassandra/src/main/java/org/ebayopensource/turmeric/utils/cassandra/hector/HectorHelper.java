@@ -6,7 +6,7 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *******************************************************************************/
-package org.ebayopensource.turmeric.utils.cassandra;
+package org.ebayopensource.turmeric.utils.cassandra.hector;
 
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
@@ -20,17 +20,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
+ * The Class HectorHelper.
  * @author jamuguerza
  */
 public final class HectorHelper {
 
+	/**
+	 * Instantiates a new hector helper.
+	 */
 	private HectorHelper() {
 	}
 
+	/**
+	 * Gets the time uuid.
+	 *
+	 * @return the time uuid
+	 */
 	public static java.util.UUID getTimeUUID() {
 		return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
 	}
 
+	/**
+	 * As byte array.
+	 *
+	 * @param uuid the uuid
+	 * @return the byte[]
+	 */
 	public static byte[] asByteArray(java.util.UUID uuid) {
 		long msb = uuid.getMostSignificantBits();
 		long lsb = uuid.getLeastSignificantBits();
@@ -46,6 +61,13 @@ public final class HectorHelper {
 		return buffer;
 	}
 
+	/**
+	 * Gets the columns.
+	 *
+	 * @param <T> the generic type
+	 * @param entity the entity
+	 * @return the columns
+	 */
 	public static <T> List<HColumn<String, ?>> getColumns(T entity) {
 		try {
 			List<HColumn<String, ?>> columns = new ArrayList<HColumn<String, ?>>();
@@ -73,6 +95,13 @@ public final class HectorHelper {
 		}
 	}
 
+	/**
+	 * Gets the string cols.
+	 *
+	 * @param <T> the generic type
+	 * @param entity the entity
+	 * @return the string cols
+	 */
 	public static <T> List<HColumn<String, String>> getStringCols(T entity) {
 		try {
 			List<HColumn<String, ?>> cols = getColumns(entity);
@@ -89,6 +118,13 @@ public final class HectorHelper {
 		}
 	}
 
+	/**
+	 * Populate entity.
+	 *
+	 * @param <T> the generic type
+	 * @param t the t
+	 * @param result the result
+	 */
 	public static <T> void populateEntity(T t,
 			QueryResult<ColumnSlice<String, byte[]>> result) {
 		try {
@@ -113,6 +149,14 @@ public final class HectorHelper {
 		}
 	}
 
+	/**
+	 * Gets the field for property name.
+	 *
+	 * @param <T> the generic type
+	 * @param entity the entity
+	 * @param name the name
+	 * @return the field for property name
+	 */
 	public static <T> Field getFieldForPropertyName(T entity, String name) {
 		try {
 			return entity.getClass().getDeclaredField(name);
@@ -121,6 +165,12 @@ public final class HectorHelper {
 		}
 	}
 
+	/**
+	 * Populate entity from cols.
+	 *
+	 * @param entity the entity
+	 * @param cols the cols
+	 */
 	public static void populateEntityFromCols(Object entity,
 			List<HColumn<String, String>> cols) {
 
@@ -135,6 +185,12 @@ public final class HectorHelper {
 		}
 	}
 
+	/**
+	 * Gets the all column names.
+	 *
+	 * @param entityClass the entity class
+	 * @return the all column names
+	 */
 	public static String[] getAllColumnNames(Class<?> entityClass) {
 		List<String> columnNames = new ArrayList<String>();
 		Field[] fields = entityClass.getDeclaredFields();
@@ -147,6 +203,12 @@ public final class HectorHelper {
 		return columnNames.toArray(new String[] {});
 	}
 
+	/**
+	 * Gets the column count.
+	 *
+	 * @param entityClass the entity class
+	 * @return the column count
+	 */
 	public static int getColumnCount(Class<?> entityClass) {
 		String[] columnNames = getAllColumnNames(entityClass);
 		return columnNames.length;

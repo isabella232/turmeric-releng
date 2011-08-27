@@ -6,10 +6,12 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *******************************************************************************/
-package org.ebayopensource.turmeric.utils.cassandra.service;
+package org.ebayopensource.turmeric.utils.cassandra;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
  
@@ -84,7 +86,7 @@ public class CassandraServiceDataCleaner {
     private void cleanDir(String dir) throws IOException {
         File dirFile = new File(dir);
         if (dirFile.exists() &&  dirFile.isDirectory()) {
-            FileUtils.delete(dirFile.listFiles());
+            FileUtils.deleteRecursive(dirFile);
         }
     }
 }
