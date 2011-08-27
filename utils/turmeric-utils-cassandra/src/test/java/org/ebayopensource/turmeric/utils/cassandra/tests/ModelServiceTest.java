@@ -38,7 +38,7 @@ public class ModelServiceTest extends BaseTest {
 	@Before
 	public void before() throws Exception {
 		    BootStrap.init();
-		    testModelService  = new ModelServiceImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE);
+		    testModelService  = new ModelServiceImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,  "TestCF");
 			
 	}
 
