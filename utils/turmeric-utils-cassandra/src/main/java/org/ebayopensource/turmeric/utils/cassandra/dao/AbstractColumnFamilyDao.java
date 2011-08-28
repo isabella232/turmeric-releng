@@ -9,6 +9,7 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
@@ -26,6 +27,10 @@ import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.SliceQuery;
 
+import org.apache.cassandra.thrift.ColumnParent;
+import org.apache.cassandra.thrift.KeyRange;
+import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SliceRange;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
 
@@ -154,14 +159,16 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 */
 	public Set<String> getKeys() {
 		int rows = 0;
+		int pagination = 50;
 		Set<String> rowKeys = new HashSet<String>();
-		Row<Object, String, Object> lastRow = null;
+		
+		Row<Object, String, byte[]> lastRow = null;
 
 		do {
-			RangeSlicesQuery<Object, String, Object> rangeSlicesQuery = HFactory
+			RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
 					.createRangeSlicesQuery(keySpace,
 							SerializerTypeInferer.getSerializer(keyTypeClass),
-							StringSerializer.get(), ObjectSerializer.get());
+							StringSerializer.get(),  BytesArraySerializer.get());
 			rangeSlicesQuery.setColumnFamily(columnFamilyName);
 			if (lastRow != null) {
 				rangeSlicesQuery.setKeys(lastRow.getKey(), "");
@@ -169,22 +176,23 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 				rangeSlicesQuery.setKeys("", "");
 			}
 			rangeSlicesQuery.setReturnKeysOnly();
-			rangeSlicesQuery.setRange("", "", false, 3);
-			rangeSlicesQuery.setRowCount(10);
-			QueryResult<OrderedRows<Object, String, Object>> result = rangeSlicesQuery
+			rangeSlicesQuery.setRange("", "", false, keyTypeClass.getDeclaredFields().length);
+			rangeSlicesQuery.setRowCount(pagination);
+			QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
 					.execute();
-			OrderedRows<Object, String, Object> orderedRows = result.get();
+			OrderedRows<Object, String, byte[]> orderedRows = result.get();
 			rows = orderedRows.getCount();
 
-			for (Row<Object, String, Object> row : orderedRows) {
+			for (Row<Object, String, byte[]> row : orderedRows) {
 				rowKeys.add((String) row.getKey());
 			}
 
 			lastRow = orderedRows.peekLast();
 
-		} while (rows > 0);
+		} while (rows == pagination);
 
-		return rowKeys;
+	return rowKeys;
+
 	}
 
 	/**
@@ -195,18 +203,18 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * @return true, if successful
 	 */
 	public boolean containsKey(KeyType key) {
-		RangeSlicesQuery<Object, String, Object> rangeSlicesQuery = HFactory
+		RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
 				.createRangeSlicesQuery(keySpace,
 						SerializerTypeInferer.getSerializer(keyTypeClass),
-						StringSerializer.get(), ObjectSerializer.get());
+						StringSerializer.get(),  BytesArraySerializer.get());
 		rangeSlicesQuery.setColumnFamily(columnFamilyName);
-		rangeSlicesQuery.setKeys(key, "");
+		rangeSlicesQuery.setKeys(key, key);
 		rangeSlicesQuery.setReturnKeysOnly();
 		rangeSlicesQuery.setRange("", "", false, 3);
 		rangeSlicesQuery.setRowCount(1);
-		QueryResult<OrderedRows<Object, String, Object>> result = rangeSlicesQuery
+		QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
 				.execute();
-		OrderedRows<Object, String, Object> orderedRows = result.get();
+		OrderedRows<Object, String, byte[]> orderedRows = result.get();
 
 		return (!orderedRows.getList().isEmpty());
 	}

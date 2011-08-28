@@ -48,7 +48,7 @@ public class ModelServiceImpl implements ModelService {
 	 * (java.lang.String)
 	 */
 	@Override
-	public Model getTestModel(String key) {
+	public Model getTestModel(final String key) {
 		return testModelDao.find(key);
 	}
 
@@ -59,7 +59,7 @@ public class ModelServiceImpl implements ModelService {
 	 * deleteTestModel(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
 	@Override
-	public void deleteTestModel(Model testModel) {
+	public void deleteTestModel(final Model testModel) {
 		testModelDao.delete(testModel);
 	}
 
@@ -82,8 +82,13 @@ public class ModelServiceImpl implements ModelService {
 	 * createTestModel(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
 	@Override
-	public void createTestModel(Model testModel) {
+	public void createTestModel(final Model testModel) {
 		testModelDao.save(testModel);
+	}
+
+	@Override
+	public boolean  containsModel(final String key) {
+		return testModelDao.containsKey(key);
 	}
 
 }

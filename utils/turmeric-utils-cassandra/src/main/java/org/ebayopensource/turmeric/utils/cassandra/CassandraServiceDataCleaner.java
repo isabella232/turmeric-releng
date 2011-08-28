@@ -30,7 +30,7 @@ public class CassandraServiceDataCleaner {
      * Creates all data dir if they don't exist and cleans them
      * @throws IOException
      */
-    public void prepare() throws IOException {
+    public static void prepare() throws IOException {
         makeDirsIfNotExist();
         cleanupDataDirectories();
     }
@@ -39,7 +39,7 @@ public class CassandraServiceDataCleaner {
      * Deletes all data from cassandra data directories, including the commit log.
      * @throws IOException in case of permissions error etc.
      */
-    public void cleanupDataDirectories() throws IOException {
+    public static void cleanupDataDirectories() throws IOException {
         for (String s: getDataDirs()) {
             cleanDir(s);
         }
@@ -48,7 +48,7 @@ public class CassandraServiceDataCleaner {
      * Creates the data diurectories, if they didn't exist.
      * @throws IOException if directories cannot be created (permissions etc).
      */
-    public void makeDirsIfNotExist() throws IOException {
+    public static void makeDirsIfNotExist() throws IOException {
         for (String s: getDataDirs()) {
             mkdir(s);
         }
@@ -59,7 +59,7 @@ public class CassandraServiceDataCleaner {
      *
      * @return
      */
-    private Set<String> getDataDirs() {
+    private static  Set<String> getDataDirs() {
         Set<String> dirs = new HashSet<String>();
         for (String s : DatabaseDescriptor.getAllDataFileLocations()) {
             dirs.add(s);
@@ -73,7 +73,7 @@ public class CassandraServiceDataCleaner {
      * @param dir
      * @throws IOException
      */
-    private void mkdir(String dir) throws IOException {
+    private static void mkdir(String dir) throws IOException {
         FileUtils.createDirectory(dir);
     }
  
@@ -83,10 +83,11 @@ public class CassandraServiceDataCleaner {
      * @param dir
      * @throws IOException
      */
-    private void cleanDir(String dir) throws IOException {
+    private static void cleanDir(String dir) throws IOException {
         File dirFile = new File(dir);
         if (dirFile.exists() &&  dirFile.isDirectory()) {
             FileUtils.deleteRecursive(dirFile);
+//            FileUtils.delete(dirFile.listFiles());
         }
     }
 }

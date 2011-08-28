@@ -46,4 +46,12 @@ public interface ModelDao {
 	 * @param testModel the test model
 	 */
 	public void delete(Model testModel);
+	
+	/**
+	 * Contains key.
+	 *
+	 * @param key the key
+	 * @return true, if successful
+	 */
+	public boolean containsKey(String key);
 }

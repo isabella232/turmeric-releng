@@ -19,16 +19,18 @@ import me.prettyprint.hector.api.factory.HFactory;
 
 /**
  * The Class HectorManager.
- *
+ * 
  * @author jamuguerza
  */
-public class HectorManager  {
-	
+public class HectorManager {
+
 	/**
 	 * Gets the or create cluster.
-	 *
-	 * @param clusterName the cluster name
-	 * @param host the host
+	 * 
+	 * @param clusterName
+	 *            the cluster name
+	 * @param host
+	 *            the host
 	 * @return the or create cluster
 	 */
 	public static Cluster getOrCreateCluster(final String clusterName,
@@ -38,55 +40,104 @@ public class HectorManager  {
 
 	/**
 	 * Gets the keyspace.
-	 *
-	 * @param clusterName the cluster name
-	 * @param host the host
-	 * @param kspace the kspace
-	 * @param columnFamilyName the column family name
+	 * 
+	 * @param clusterName
+	 *            the cluster name
+	 * @param host
+	 *            the host
+	 * @param kspace
+	 *            the kspace
+	 * @param columnFamilyName
+	 *            the column family name
 	 * @return the keyspace
 	 */
-	public  Keyspace getKeyspace(final String clusterName,
-			final String host, final String kspace, final String columnFamilyName) { 
-		
+	public Keyspace getKeyspace(final String clusterName, final String host,
+			final String kspace, final String columnFamilyName) {
+
 		Keyspace ks = null;
-		
+
 		try {
+
 			ks = createKeyspace(clusterName, host, kspace, columnFamilyName);
+
 		} catch (HInvalidRequestException e) {
-			// ignore it , means  keyspace already exists, so let's do a client keyspace creation 
+			// ignore it, it means keyspace already exists, but CF could not
 			if ("Keyspace already exists.".equalsIgnoreCase(e.getWhy())) {
-				ks = HFactory.createKeyspace(kspace,
-						getOrCreateCluster(clusterName, host));
+				try {
 
+					ks = createCF(clusterName, host, kspace, columnFamilyName);
+
+				} catch (HInvalidRequestException e1) {
+					// ignore it, it means keyspace & CF already exist, get the
+					// ks to hector client
+					if ((columnFamilyName + " already exists in keyspace " + kspace)
+							.equalsIgnoreCase(e1.getWhy())) {
+
+						ks = HFactory.createKeyspace(kspace,
+								getOrCreateCluster(clusterName, host));
+					}
+				}
 			}
-
 		}
+
 		return ks;
 	}
 
 	/**
 	 * Creates the keyspace.
-	 *
-	 * @param clusterName the cluster name
-	 * @param host the host
-	 * @param kspace the kspace
-	 * @param columnFamilyName the column family name 
+	 * 
+	 * @param clusterName
+	 *            the cluster name
+	 * @param host
+	 *            the host
+	 * @param kspace
+	 *            the kspace
+	 * @param columnFamilyName
+	 *            the column family name
 	 * @return the keyspace
 	 */
-	private  Keyspace createKeyspace(final String clusterName,
-			final String host, final String kspace, final String columnFamilyName) {
+	private Keyspace createKeyspace(final String clusterName,
+			final String host, final String kspace,
+			final String columnFamilyName) {
 		Cluster cluster = getOrCreateCluster(clusterName, host);
-		
+
 		KeyspaceDefinition ksDefinition = new ThriftKsDef(kspace);
 		Keyspace keyspace = HFactory.createKeyspace(kspace, cluster);
 		cluster.addKeyspace(ksDefinition);
-		
-		ColumnFamilyDefinition familyDefinition = new ThriftCfDef(
-				kspace, columnFamilyName);
+
+		ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
+				columnFamilyName);
 		cluster.addColumnFamily(familyDefinition);
 
 		return keyspace;
 	}
 
-	
+	/**
+	 * Creates the cf.
+	 * 
+	 * @param clusterName
+	 *            the cluster name
+	 * @param host
+	 *            the host
+	 * @param kspace
+	 *            the kspace
+	 * @param columnFamilyName
+	 *            the column family name
+	 * @return the keyspace
+	 */
+	private Keyspace createCF(final String clusterName, final String host,
+			final String kspace, final String columnFamilyName) {
+
+		Cluster cluster = getOrCreateCluster(clusterName, host);
+
+		ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
+				columnFamilyName);
+		cluster.addColumnFamily(familyDefinition);
+
+		Keyspace keyspace = HFactory.createKeyspace(kspace,
+				getOrCreateCluster(clusterName, host));
+
+		return keyspace;
+	}
+
 }

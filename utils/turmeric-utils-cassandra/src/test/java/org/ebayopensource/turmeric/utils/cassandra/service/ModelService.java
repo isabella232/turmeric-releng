@@ -37,6 +37,13 @@ public interface ModelService {
       */
      public void deleteTestModel(Model testModel);
 
+     /**
+      * Contains model.
+      *
+      * @param key the key
+      */
+     public boolean containsModel(String key);
+     
 	    /**
     	 * Gets the all keys.
     	 *

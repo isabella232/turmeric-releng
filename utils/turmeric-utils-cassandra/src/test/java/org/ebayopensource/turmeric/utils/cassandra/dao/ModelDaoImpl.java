@@ -34,14 +34,14 @@ public class ModelDaoImpl extends
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#save(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
-	public void save(Model testModel) {
+	public void save(final Model testModel) {
 		super.save(testModel.getKey(), testModel);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#delete(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
-	public void delete(Model testModel) {
+	public void delete(final Model testModel) {
 		delete(testModel.getKey());
 	}
 
@@ -51,6 +51,13 @@ public class ModelDaoImpl extends
 	@Override
 	public Set<String> getAllKeys() {
 		return super.getKeys();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#containsKey(java.lang.Object)
+	 */
+	public boolean containsKey(final String key){
+		return super.containsKey(key);
 	}
 
 }

@@ -24,7 +24,4 @@ public abstract class BaseTest {
 	
 	/** The Constant HOST. */
 	protected static final String HOST = "127.0.1.10:9160";
-
-	/** The server. */
-	protected static CassandraTestManager server;
 }
