@@ -34,9 +34,9 @@ import org.apache.cassandra.thrift.SliceRange;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
 
-
 /**
  * The Class AbstractColumnFamilyDao.
+ * 
  * @author jamuguerza
  * @param <KeyType>
  *            the generic type
@@ -82,8 +82,8 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	public AbstractColumnFamilyDao(final String clusterName, final String host,
 			final String s_keyspace, final Class<KeyType> keyTypeClass,
 			final Class<T> persistentClass, final String columnFamilyName) {
-		this.keySpace = new HectorManager()
-				.getKeyspace(clusterName, host, s_keyspace, columnFamilyName);
+		this.keySpace = new HectorManager().getKeyspace(clusterName, host,
+				s_keyspace, columnFamilyName);
 		this.keyTypeClass = keyTypeClass;
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;
@@ -144,6 +144,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * 
 	 * @param key
 	 *            the key
+	 * @see http://wiki.apache.org/cassandra/DistributedDeletes
 	 */
 	public void delete(KeyType key) {
 		Mutator<Object> mutator = HFactory.createMutator(keySpace,
@@ -161,14 +162,14 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 		int rows = 0;
 		int pagination = 50;
 		Set<String> rowKeys = new HashSet<String>();
-		
+
 		Row<Object, String, byte[]> lastRow = null;
 
 		do {
 			RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
 					.createRangeSlicesQuery(keySpace,
 							SerializerTypeInferer.getSerializer(keyTypeClass),
-							StringSerializer.get(),  BytesArraySerializer.get());
+							StringSerializer.get(), BytesArraySerializer.get());
 			rangeSlicesQuery.setColumnFamily(columnFamilyName);
 			if (lastRow != null) {
 				rangeSlicesQuery.setKeys(lastRow.getKey(), "");
@@ -176,7 +177,8 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 				rangeSlicesQuery.setKeys("", "");
 			}
 			rangeSlicesQuery.setReturnKeysOnly();
-			rangeSlicesQuery.setRange("", "", false, keyTypeClass.getDeclaredFields().length);
+			rangeSlicesQuery.setRange("", "", false,
+					keyTypeClass.getDeclaredFields().length);
 			rangeSlicesQuery.setRowCount(pagination);
 			QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
 					.execute();
@@ -184,14 +186,16 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 			rows = orderedRows.getCount();
 
 			for (Row<Object, String, byte[]> row : orderedRows) {
-				rowKeys.add((String) row.getKey());
+				if (!row.getColumnSlice().getColumns().isEmpty()) {
+					rowKeys.add((String) row.getKey());
+				}
 			}
 
 			lastRow = orderedRows.peekLast();
 
 		} while (rows == pagination);
 
-	return rowKeys;
+		return rowKeys;
 
 	}
 
@@ -201,12 +205,13 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * @param key
 	 *            the key
 	 * @return true, if successful
+	 * @see http://wiki.apache.org/cassandra/DistributedDeletes
 	 */
 	public boolean containsKey(KeyType key) {
 		RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
 				.createRangeSlicesQuery(keySpace,
 						SerializerTypeInferer.getSerializer(keyTypeClass),
-						StringSerializer.get(),  BytesArraySerializer.get());
+						StringSerializer.get(), BytesArraySerializer.get());
 		rangeSlicesQuery.setColumnFamily(columnFamilyName);
 		rangeSlicesQuery.setKeys(key, key);
 		rangeSlicesQuery.setReturnKeysOnly();
@@ -216,7 +221,8 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 				.execute();
 		OrderedRows<Object, String, byte[]> orderedRows = result.get();
 
-		return (!orderedRows.getList().isEmpty());
+		return (!orderedRows.getList().isEmpty() && !orderedRows.getByKey(key)
+				.getColumnSlice().getColumns().isEmpty());
 	}
 
 }

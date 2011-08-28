@@ -34,7 +34,7 @@ public class ModelDaoTest extends BaseTest {
 	private ModelDao testModelDao;
 
 	/** The KEY. */
-	private static String KEY = "testModel_002";
+	private static String KEY = "testModel_001";
 
 	/**
 	 * Before.
@@ -70,13 +70,14 @@ public class ModelDaoTest extends BaseTest {
 		
 		// delete
 		testModelDao.delete(testModel);
+		assertFalse(testModelDao.containsKey(KEY));
 		testModel = testModelDao.find(KEY);
 		assertTrue(testModel == null);
 
 		//	gelAllKeys
 		 testModel = createModel();
 		 
-		 for (int i = 1; i < 20; i++) {
+		 for (int i = 0; i < 20; i++) {
 			 testModel.setKey(KEY + i);
 			 testModelDao.save(testModel);
 		 }
