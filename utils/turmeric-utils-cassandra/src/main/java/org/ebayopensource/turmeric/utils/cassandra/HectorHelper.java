@@ -88,13 +88,14 @@ public final class HectorHelper {
     }
   }
 
-  public static <T> void populateEntity(T t, QueryResult<ColumnSlice<String, Object>> result) {
+  public static <T> void populateEntity(T t, QueryResult<ColumnSlice<String, byte[]>> result) {
     try {
       Field[] fields = t.getClass().getDeclaredFields();
       for (Field field : fields) {
         field.setAccessible(true);
         String name = field.getName();
-        HColumn<String, Object> col = result.get().getColumnByName(name);
+        ColumnSlice<String, byte[]> columnSlice = result.get();
+        HColumn<String, byte[]> col = columnSlice.getColumnByName(name);
         if (col == null || col.getValue() == null || col.getValueBytes().capacity() == 0) {
           // No data for this col
           continue;
