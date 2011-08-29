@@ -9,11 +9,12 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
 
 import org.ebayopensource.turmeric.utils.cassandra.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.HectorManager;
-
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
 import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
@@ -29,12 +30,15 @@ import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.SliceQuery;
 
-/*
- * @author jamuguerza
- */
+import org.apache.cassandra.thrift.ColumnParent;
+import org.apache.cassandra.thrift.KeyRange;
+import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SliceRange;
+
 /**
  * The Class AbstractColumnFamilyDao.
  * 
+ * @author jamuguerza
  * @param <KeyType>
  *            the generic type
  * @param <T>
