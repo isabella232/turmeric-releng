@@ -1,25 +1,31 @@
-<!DOCTYPE module PUBLIC
-"-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-"http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<!--
+    This configuration file was written by the eclipse-cs plugin configuration editor
+-->
+<!--
+    Checkstyle-Configuration: ebayopensource-checkstyle
+    Description: none
+-->
 <module name="Checker">
-    <module name="JavadocPackage"/>
-    <module name="TreeWalker">
-
-        <!-- Checks for Javadoc comments.                     -->
-        <!-- See http://checkstyle.sf.net/config_javadoc.html -->
-        <module name="JavadocMethod">
-        	<property name="scope" value="package"/>
-        </module>
-        <module name="JavadocType">
-        	<property name="scope" value="package"/>
-        </module>
-        <module name="JavadocVariable">
-        	<property name="scope" value="package"/>
-        </module>	
-        <module name="JavadocStyle">
-			<property name="scope" value="package"/>
-        </module>
+  <property name="severity" value="warning"/>
+  <module name="TreeWalker">
+    <module name="JavadocMethod">
+      <property name="scope" value="package"/>
     </module>
-
+    <module name="JavadocType">
+      <property name="scope" value="package"/>
+    </module>
+    <module name="JavadocVariable">
+      <property name="scope" value="package"/>
+    </module>
+    <module name="JavadocStyle">
+      <property name="scope" value="package"/>
+    </module>
+  </module>
+  <module name="JavadocPackage"/>
+  <module name="SuppressionFilter">
+    <property name="file" value="/home/manuelchinea/intalio/projects/turmeric/reposgit/turmeric-releng/toolchain/javadoc-checkstyle/src/main/resources/META-INF/turmeric/javadoc-suppressions.xml"/>
+  </module>
 </module>
-

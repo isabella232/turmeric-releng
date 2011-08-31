@@ -41,6 +41,7 @@
 
     <modules>
         <module>turmeric-utils-jpa</module>
+        <module>turmeric-utils-cassandra</module>
         <module>TurmericUtils</module>
     </modules>
 
