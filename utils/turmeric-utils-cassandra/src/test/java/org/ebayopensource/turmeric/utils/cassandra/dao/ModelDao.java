@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
+import java.util.List;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
@@ -54,4 +55,15 @@ public interface ModelDao {
 	 * @return true, if successful
 	 */
 	public boolean containsKey(String key);
+	
+
+	/**
+	 * Find items.
+	 *
+	 * @param keys the keys
+	 * @param rangeFrom the range from
+	 * @param rangeTo the range to
+	 * @return the sets the
+	 */
+	public Set<Model> findItems(final List<String> keys, final String rangeFrom, final String rangeTo ) ;
 }

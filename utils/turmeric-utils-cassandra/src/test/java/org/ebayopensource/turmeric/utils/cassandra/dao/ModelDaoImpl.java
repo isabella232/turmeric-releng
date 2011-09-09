@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
+import java.util.List;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
@@ -60,4 +61,12 @@ public class ModelDaoImpl extends
 		return super.containsKey(key);
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#findItems(java.util.List, java.lang.String, java.lang.String)
+	 */
+	public Set<Model> findItems(final List<String> keys, final String rangeFrom, final String rangeTo ) {
+		return super.findItems(keys, rangeFrom, rangeTo);
+	}
+	
 }

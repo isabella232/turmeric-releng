@@ -13,8 +13,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
+
+import me.prettyprint.cassandra.model.ColumnSliceImpl;
 
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao;
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDaoImpl;
@@ -86,6 +90,31 @@ public class ModelDaoTest extends BaseTest {
 		 assertEquals(20, allKeys.size());
 		 assertTrue(allKeys.contains(testModel.getKey()));
 		 
+		 
+
+		 //findItems
+		 ArrayList<String> keyList = new ArrayList<String>();
+		 keyList.add("findItem_001");
+		 keyList.add("findItem_002");
+		 keyList.add("findItem_003");
+		 
+		 testModel = createModel();
+		 testModel.setKey(keyList.get(0));
+		 Model  testModel1 = createModel();
+		 testModel1.setKey(keyList.get(1));
+		 Model  testModel2 = createModel();
+		 testModel2.setKey(keyList.get(2));
+		 
+		 testModelDao.save(testModel);
+		 testModelDao.save(testModel1);
+		 testModelDao.save(testModel2);
+		 
+				
+		 Set<Model> result = testModelDao.findItems(keyList, "", "");
+		 assertNotNull(result);
+		 assertEquals(3, result.size());
+		 
+
 	}
 
 	private Model createModel() {
