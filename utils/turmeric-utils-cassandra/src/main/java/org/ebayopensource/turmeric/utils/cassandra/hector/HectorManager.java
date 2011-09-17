@@ -8,11 +8,18 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.hector;
 
+import java.util.ArrayList;
+
+import org.apache.cassandra.db.ColumnFamilyType;
+
 import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
+import me.prettyprint.hector.api.ddl.ColumnDefinition;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
+import me.prettyprint.hector.api.ddl.ColumnType;
+import me.prettyprint.hector.api.ddl.ComparatorType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
 import me.prettyprint.hector.api.exceptions.HInvalidRequestException;
 import me.prettyprint.hector.api.factory.HFactory;
@@ -52,20 +59,20 @@ public class HectorManager {
 	 * @return the keyspace
 	 */
 	public Keyspace getKeyspace(final String clusterName, final String host,
-			final String kspace, final String columnFamilyName) {
+			final String kspace, final String columnFamilyName, boolean isSuperColumn) {
 
 		Keyspace ks = null;
 
 		try {
 
-			ks = createKeyspace(clusterName, host, kspace, columnFamilyName);
+			ks = createKeyspace(clusterName, host, kspace, columnFamilyName, isSuperColumn);
 
 		} catch (HInvalidRequestException e) {
 			// ignore it, it means keyspace already exists, but CF could not
 			if ("Keyspace already exists.".equalsIgnoreCase(e.getWhy())) {
 				try {
 
-					ks = createCF(clusterName, host, kspace, columnFamilyName);
+					ks = createCF(clusterName, host, kspace, columnFamilyName, isSuperColumn);
 
 				} catch (HInvalidRequestException e1) {
 					// ignore it, it means keyspace & CF already exist, get the
@@ -98,18 +105,30 @@ public class HectorManager {
 	 */
 	private Keyspace createKeyspace(final String clusterName,
 			final String host, final String kspace,
-			final String columnFamilyName) {
+			final String columnFamilyName, boolean isSuperColumn) {
 		Cluster cluster = getOrCreateCluster(clusterName, host);
 
 		KeyspaceDefinition ksDefinition = new ThriftKsDef(kspace);
 		Keyspace keyspace = HFactory.createKeyspace(kspace, cluster);
 		cluster.addKeyspace(ksDefinition);
-
-		ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
-				columnFamilyName);
-		cluster.addColumnFamily(familyDefinition);
-
+	
+		createCF(kspace, columnFamilyName, cluster, isSuperColumn);
 		return keyspace;
+	}
+
+	private void createCF(final String kspace, final String columnFamilyName,
+			final Cluster cluster, boolean isSuperColumn) {
+		
+		if(isSuperColumn){
+			ThriftCfDef cfDefinition = (ThriftCfDef)HFactory.createColumnFamilyDefinition(kspace, columnFamilyName, ComparatorType.UTF8TYPE, new ArrayList<ColumnDefinition>() );
+			  cfDefinition.setColumnType( ColumnType.SUPER);
+			  cfDefinition.setSubComparatorType( ComparatorType.UTF8TYPE );
+			  cluster.addColumnFamily( cfDefinition );
+		}else{
+			ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
+					columnFamilyName);
+			cluster.addColumnFamily(familyDefinition);
+		}
 	}
 
 	/**
@@ -126,14 +145,12 @@ public class HectorManager {
 	 * @return the keyspace
 	 */
 	private Keyspace createCF(final String clusterName, final String host,
-			final String kspace, final String columnFamilyName) {
+			final String kspace, final String columnFamilyName, boolean isSuperColumn) {
 
 		Cluster cluster = getOrCreateCluster(clusterName, host);
 
-		ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
-				columnFamilyName);
-		cluster.addColumnFamily(familyDefinition);
-
+		createCF(kspace, columnFamilyName, cluster, isSuperColumn);
+		
 		Keyspace keyspace = HFactory.createKeyspace(kspace,
 				getOrCreateCluster(clusterName, host));
 

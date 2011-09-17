@@ -14,17 +14,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
-
-import me.prettyprint.cassandra.model.ColumnSliceImpl;
 
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao;
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDaoImpl;
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
 import org.ebayopensource.turmeric.utils.cassandra.server.CassandraTestManager;
-import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -35,7 +33,7 @@ import org.junit.Test;
 public class ModelDaoTest extends BaseTest {
 
 	/** The test model dao. */
-	private ModelDao testModelDao;
+	private static ModelDao testModelDao;
 
 	/** The KEY. */
 	private static String KEY = "testModel_001";
@@ -46,19 +44,25 @@ public class ModelDaoTest extends BaseTest {
 	 * @throws Exception
 	 *             the exception
 	 */
-	@Before
-	public void before() throws Exception {
+	@BeforeClass
+	public static void beforeClass() throws Exception {
 		CassandraTestManager.initialize();
 		testModelDao = new ModelDaoImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,
 				"TestCF");
-
 	}
 
-	/**
-	 * Life cycle.
-	 */
+	@After
+	public void after() throws Exception {
+		for (String key : testModelDao.getAllKeys()) {
+			Model model = new Model();
+			model.setKey(key);
+			testModelDao.delete(model);
+		}
+		Thread.sleep(3000);
+	}
+
 	@Test
-	public void lifeCycle() {
+	public void testSave() {
 		Model testModel = createModel();
 
 		// save
@@ -67,53 +71,80 @@ public class ModelDaoTest extends BaseTest {
 		// find
 		testModel = testModelDao.find(KEY);
 		assertNotNull(testModel);
+	}
+
+	@Test
+	public void testContains() {
+		Model testModel = createModel();
+		testModel.setKey(KEY + "test_contains");
+		testModelDao.save(testModel);
 
 		// contains
-		assertTrue(testModelDao.containsKey(KEY));
-		assertFalse(testModelDao.containsKey(KEY+"111111"));
-		
+		assertTrue(testModelDao.containsKey(KEY + "test_contains"));
+		assertFalse(testModelDao.containsKey(KEY + "111111"));
+		assertEquals(1, testModelDao.getAllKeys().size());
+	}
+
+	@Test
+	public void testDelete() {
+		Model testModel = createModel();
+		testModel.setKey(KEY);
+		// save
+		testModelDao.save(testModel);
+
+		// find
+		testModel = testModelDao.find(KEY);
+		assertNotNull(testModel);
+
 		// delete
 		testModelDao.delete(testModel);
 		assertFalse(testModelDao.containsKey(KEY));
 		testModel = testModelDao.find(KEY);
 		assertTrue(testModel == null);
+	}
 
-		//	gelAllKeys
-		 testModel = createModel();
-		 
-		 for (int i = 0; i < 20; i++) {
-			 testModel.setKey(KEY + i);
-			 testModelDao.save(testModel);
-		 }
-		 Set<String> allKeys = testModelDao.getAllKeys();
-		 
-		 assertEquals(20, allKeys.size());
-		 assertTrue(allKeys.contains(testModel.getKey()));
-		 
-		 
+	@Test
+	public void testGetAllKeys() {
 
-		 //findItems
-		 ArrayList<String> keyList = new ArrayList<String>();
-		 keyList.add("findItem_001");
-		 keyList.add("findItem_002");
-		 keyList.add("findItem_003");
-		 
-		 testModel = createModel();
-		 testModel.setKey(keyList.get(0));
-		 Model  testModel1 = createModel();
-		 testModel1.setKey(keyList.get(1));
-		 Model  testModel2 = createModel();
-		 testModel2.setKey(keyList.get(2));
-		 
-		 testModelDao.save(testModel);
-		 testModelDao.save(testModel1);
-		 testModelDao.save(testModel2);
-		 
-				
-		 Set<Model> result = testModelDao.findItems(keyList, "", "");
-		 assertNotNull(result);
-		 assertEquals(3, result.size());
-		 
+		Model testModel = createModel();
+
+		// save
+		for (int i = 0; i < 20; i++) {
+			testModel.setKey(KEY + i);
+			testModelDao.save(testModel);
+		}
+
+		// gelAllKeys
+		Set<String> allKeys = testModelDao.getAllKeys();
+
+		assertEquals(20, allKeys.size());
+		assertTrue(allKeys.contains(testModel.getKey()));
+	}
+
+	@Test
+	public void testFindItems() {
+
+		// findItems
+		ArrayList<String> keyList = new ArrayList<String>();
+		keyList.add("findItem_001");
+		keyList.add("findItem_002");
+		keyList.add("findItem_003");
+
+		Model testModel = createModel();
+		testModel.setKey(keyList.get(0));
+		Model testModel1 = createModel();
+		testModel1.setKey(keyList.get(1));
+		Model testModel2 = createModel();
+		testModel2.setKey(keyList.get(2));
+
+		// save
+		testModelDao.save(testModel);
+		testModelDao.save(testModel1);
+		testModelDao.save(testModel2);
+
+		Set<Model> result = testModelDao.findItems(keyList, "", "");
+		assertNotNull(result);
+		assertEquals(3, result.size());
 
 	}
 

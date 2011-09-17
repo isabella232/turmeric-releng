@@ -8,16 +8,21 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.hector;
 
+import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
+import me.prettyprint.hector.api.beans.HSuperColumn;
+import me.prettyprint.hector.api.beans.SuperSlice;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.query.QueryResult;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /*
  * The Class HectorHelper.
@@ -33,7 +38,7 @@ public final class HectorHelper {
 
 	/**
 	 * Gets the time uuid.
-	 *
+	 * 
 	 * @return the time uuid
 	 */
 	public static java.util.UUID getTimeUUID() {
@@ -42,8 +47,9 @@ public final class HectorHelper {
 
 	/**
 	 * As byte array.
-	 *
-	 * @param uuid the uuid
+	 * 
+	 * @param uuid
+	 *            the uuid
 	 * @return the byte[]
 	 */
 	public static byte[] asByteArray(java.util.UUID uuid) {
@@ -63,9 +69,11 @@ public final class HectorHelper {
 
 	/**
 	 * Gets the columns.
-	 *
-	 * @param <T> the generic type
-	 * @param entity the entity
+	 * 
+	 * @param <T>
+	 *            the generic type
+	 * @param entity
+	 *            the entity
 	 * @return the columns
 	 */
 	public static <T> List<HColumn<String, ?>> getColumns(T entity) {
@@ -95,11 +103,84 @@ public final class HectorHelper {
 		}
 	}
 
+	public static <T> List<HColumn<String, Object>> getObjectColumns(T entity) {
+		try {
+			List<HColumn<String, Object>> columns = new ArrayList<HColumn<String, Object>>();
+			Field[] fields = entity.getClass().getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Object value =  field.get(entity);
+				
+				if (value == null) {
+					// Field has no value so nothing to store
+					continue;
+				}
+
+				String name = field.getName();
+
+				HColumn<String, Object> column = HFactory.createColumn(
+						name, value, StringSerializer.get(), ObjectSerializer.get());
+
+				columns.add(column);
+			}
+			return columns;
+		} catch (Exception e) {
+			throw new RuntimeException("Reflection exception", e);
+		}
+	}
+
+	/**
+	 * Gets the columns.
+	 * 
+	 * @param <ST>
+	 *            the generic type
+	 * @param <T>
+	 * @param entity
+	 *            the entity
+	 * @return the columns
+	 */
+	public static <ST, T> List<HSuperColumn<String, String, ?>> getSuperColumns(
+			ST superEntity, Set<T> entityList) {
+		try {
+			List<HSuperColumn<String, String, ?>> superColumns = new ArrayList<HSuperColumn<String, String, ?>>();
+			Field[] fields = superEntity.getClass().getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Object value = field.get(superEntity);
+
+				if (value == null) {
+					// Field has no value so nothing to store
+					continue;
+				}
+				String superName = field.getName();
+
+				for (T entity : entityList) {
+					 List<HColumn<String, Object>> columns = getObjectColumns(entity);
+
+					HSuperColumn<String, String, Object> superColumn = HFactory
+							.createSuperColumn(superName, columns,
+									StringSerializer.get(),
+									StringSerializer.get(),
+									ObjectSerializer.get());
+
+					superColumns.add(superColumn);
+				}
+
+			}
+
+			return superColumns;
+		} catch (Exception e) {
+			throw new RuntimeException("Reflection exception", e);
+		}
+	}
+
 	/**
 	 * Gets the string cols.
-	 *
-	 * @param <T> the generic type
-	 * @param entity the entity
+	 * 
+	 * @param <T>
+	 *            the generic type
+	 * @param entity
+	 *            the entity
 	 * @return the string cols
 	 */
 	public static <T> List<HColumn<String, String>> getStringCols(T entity) {
@@ -120,10 +201,13 @@ public final class HectorHelper {
 
 	/**
 	 * Populate entity.
-	 *
-	 * @param <T> the generic type
-	 * @param t the t
-	 * @param result the result
+	 * 
+	 * @param <T>
+	 *            the generic type
+	 * @param t
+	 *            the t
+	 * @param result
+	 *            the result
 	 */
 	public static <T> void populateEntity(T t,
 			QueryResult<ColumnSlice<String, byte[]>> result) {
@@ -149,12 +233,63 @@ public final class HectorHelper {
 		}
 	}
 
+	public static <ST, T> void populateSuperEntity(ST st, T t,
+			QueryResult<SuperSlice<Object, String, byte[]>> result) {
+		try {
+			Field[] superFields = st.getClass().getDeclaredFields();
+			for (Field superField : superFields) {
+				superField.setAccessible(true);
+				String superName = superField.getName();
+
+				// columns from each Supercolumns
+				if (superField.getGenericType() instanceof Set) {
+
+					Set<T> tSet = new HashSet<T>();
+					Field[] fields = t.getClass().getDeclaredFields();
+
+					HSuperColumn<Object, String, byte[]> superColumn = result
+							.get().getColumnByName(superName);
+					for (HColumn<String, byte[]> col : superColumn.getColumns()) {
+
+						for (Field field : fields) {
+							field.setAccessible(true);
+							String name = field.getName();
+							Object newT = null;
+							try {
+								newT = t.getClass().newInstance();
+							} catch (InstantiationException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+							if (col == null || col.getValue() == null
+									|| col.getValueBytes().capacity() == 0) {
+								// No data for this col
+								continue;
+							}
+
+							Object val = SerializerTypeInferer.getSerializer(
+									field.getType()).fromBytes(col.getValue());
+							field.set(t, val);
+							tSet.add((T) newT);
+						}
+					}
+				}
+			}
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Reflection Error ", e);
+		}
+	}
+
 	/**
 	 * Gets the field for property name.
-	 *
-	 * @param <T> the generic type
-	 * @param entity the entity
-	 * @param name the name
+	 * 
+	 * @param <T>
+	 *            the generic type
+	 * @param entity
+	 *            the entity
+	 * @param name
+	 *            the name
 	 * @return the field for property name
 	 */
 	public static <T> Field getFieldForPropertyName(T entity, String name) {
@@ -167,9 +302,11 @@ public final class HectorHelper {
 
 	/**
 	 * Populate entity from cols.
-	 *
-	 * @param entity the entity
-	 * @param cols the cols
+	 * 
+	 * @param entity
+	 *            the entity
+	 * @param cols
+	 *            the cols
 	 */
 	public static void populateEntityFromCols(Object entity,
 			List<HColumn<String, String>> cols) {
@@ -187,8 +324,9 @@ public final class HectorHelper {
 
 	/**
 	 * Gets the all column names.
-	 *
-	 * @param entityClass the entity class
+	 * 
+	 * @param entityClass
+	 *            the entity class
 	 * @return the all column names
 	 */
 	public static String[] getAllColumnNames(Class<?> entityClass) {
@@ -205,8 +343,9 @@ public final class HectorHelper {
 
 	/**
 	 * Gets the column count.
-	 *
-	 * @param entityClass the entity class
+	 * 
+	 * @param entityClass
+	 *            the entity class
 	 * @return the column count
 	 */
 	public static int getColumnCount(Class<?> entityClass) {

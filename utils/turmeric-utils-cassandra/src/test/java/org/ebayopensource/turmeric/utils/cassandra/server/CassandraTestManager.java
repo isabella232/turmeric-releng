@@ -9,15 +9,18 @@
 package org.ebayopensource.turmeric.utils.cassandra.server;
 
 import java.io.IOException;
-import java.util.logging.Level;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.cassandra.config.ConfigurationException;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.service.EmbeddedCassandraService;
 import org.apache.thrift.transport.TTransportException;
-import org.ebayopensource.turmeric.utils.cassandra.CassandraServiceDataCleaner;
 
 /**
  * The Class CassandraTestManager.
+ * 
  * @author jamuguerza
  */
 public class CassandraTestManager {
@@ -27,29 +30,42 @@ public class CassandraTestManager {
 
 	/**
 	 * Set embedded cassandra.
-	 *
-	 * @throws TTransportException the t transport exception
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws InterruptedException the interrupted exception
-	 * @throws ConfigurationException the configuration exception
+	 * 
+	 * @throws TTransportException
+	 *             the t transport exception
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws InterruptedException
+	 *             the interrupted exception
+	 * @throws ConfigurationException
+	 *             the configuration exception
 	 */
 	public static void initialize() throws TTransportException, IOException,
 			InterruptedException, ConfigurationException {
-		
-		loadConfig();
-
-		CassandraServiceDataCleaner.prepare();
-		
 		if (cassandraService == null) {
+			loadConfig();
+
+//			for (String dir : getDataDirs()) {
+//				FileUtils.createDirectory(dir);
+//			}
+
 			cassandraService = new EmbeddedCassandraService();
 			cassandraService.start();
 		}
 
 	}
 
+	private static Set<String> getDataDirs() {
+		Set<String> dirs = new HashSet<String>();
+		for (String s : DatabaseDescriptor.getAllDataFileLocations()) {
+			dirs.add(s);
+		}
+		return dirs;
+	}
+
 	/**
 	 * Load config.
-	 */	
+	 */
 	private static void loadConfig() {
 		// use particular test properties, maybe with copy method
 		System.setProperty("log4j.configuration",

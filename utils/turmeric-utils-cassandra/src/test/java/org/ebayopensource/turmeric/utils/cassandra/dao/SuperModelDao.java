@@ -9,45 +9,40 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
+import org.ebayopensource.turmeric.utils.cassandra.model.SuperModel;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Interface ModelDao.
+ * The Interface SuperModelDao.
  * @author jamuguerza
  */
-public interface ModelDao {
+public interface SuperModelDao {
 	
 	/**
 	 * Save.
 	 *
-	 * @param testModel the test model
+	 * @param testSuperModel the test model
 	 */
-	public void save(Model testModel);
+	public void save(SuperModel testSuperModel, Map<String, Model> modelMap);
 
-	/**
-	 * Gets the all keys.
-	 *
-	 * @return the all keys
-	 */
-	public Set<String> getAllKeys();
-	
+
 	/**
 	 * Find.
 	 *
 	 * @param key the key
 	 * @return the model
 	 */
-	public Model find(String key);
+	public SuperModel find(String key);
 
 	/**
 	 * Delete.
 	 *
 	 * @param testModel the test model
 	 */
-	public void delete(Model testModel);
+	public void delete(SuperModel testSuperModel);
 	
 	/**
 	 * Contains key.
@@ -59,6 +54,13 @@ public interface ModelDao {
 	
 
 	/**
+	 * Gets the all keys.
+	 *
+	 * @return the all keys
+	 */
+	public Set<String> getAllKeys();
+	
+	/**
 	 * Find items.
 	 *
 	 * @param keys the keys
@@ -66,5 +68,6 @@ public interface ModelDao {
 	 * @param rangeTo the range to
 	 * @return the sets the
 	 */
-	public Set<Model> findItems(final List<String> keys, final String rangeFrom, final String rangeTo ) ;
+	public  Map<String, SuperModel> findSuperItems(final List<String> superKeys, final List<String> superColNames, 
+			 final List<String> keys, final String rangeFrom, final String rangeTo ) ;
 }

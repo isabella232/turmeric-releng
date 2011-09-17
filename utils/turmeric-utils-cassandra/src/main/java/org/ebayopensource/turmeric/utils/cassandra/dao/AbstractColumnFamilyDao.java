@@ -8,14 +8,11 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
-import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.Keyspace;
@@ -31,10 +28,6 @@ import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.SliceQuery;
 
-import org.apache.cassandra.thrift.ColumnParent;
-import org.apache.cassandra.thrift.KeyRange;
-import org.apache.cassandra.thrift.SlicePredicate;
-import org.apache.cassandra.thrift.SliceRange;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
 
@@ -64,9 +57,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	/** The all column names. */
 	private final String[] allColumnNames;
 
-	/** The column count. */
-	private final int columnCount;
-
+	
 	/**
 	 * Instantiates a new abstract column family dao.
 	 * 
@@ -87,12 +78,12 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 			final String s_keyspace, final Class<KeyType> keyTypeClass,
 			final Class<T> persistentClass, final String columnFamilyName) {
 		this.keySpace = new HectorManager().getKeyspace(clusterName, host,
-				s_keyspace, columnFamilyName);
+				s_keyspace, columnFamilyName, false);
 		this.keyTypeClass = keyTypeClass;
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;
 		this.allColumnNames = HectorHelper.getAllColumnNames(persistentClass);
-		this.columnCount = HectorHelper.getColumnCount(persistentClass);
+
 	}
 
 	/**
@@ -235,7 +226,6 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
 		return items;
 	}
-	
 	
 
 	/**

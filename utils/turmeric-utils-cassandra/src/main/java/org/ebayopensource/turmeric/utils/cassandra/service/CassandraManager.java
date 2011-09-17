@@ -33,11 +33,10 @@ public class CassandraManager {
 	 * Initialize.
 	 */
 	public static void initialize() {
-
-		loadConfig();
-
 		try {
 			if (cassandraService == null) {
+				loadConfig();
+
 				cassandraService = new EmbeddedCassandraService();
 				cassandraService.start();
 			}

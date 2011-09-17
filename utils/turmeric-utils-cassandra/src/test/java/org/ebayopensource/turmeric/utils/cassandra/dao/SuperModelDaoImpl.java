@@ -9,16 +9,19 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
+import org.ebayopensource.turmeric.utils.cassandra.model.SuperModel;
+
 
 /**
- * The Class ModelDaoImpl.
+ * The Class SuperModelDaoImpl.
  * @author jamuguerza
  */
-public class ModelDaoImpl extends
-		AbstractColumnFamilyDao<String, Model> implements ModelDao {
+public class SuperModelDaoImpl extends
+		AbstractSuperColumnFamilyDao<String, SuperModel, String, Model> implements SuperModelDao {
 
 	/**
 	 * Instantiates a new model dao impl.
@@ -28,46 +31,49 @@ public class ModelDaoImpl extends
 	 * @param keySpace the key space
 	 * @param cf the cf
 	 */
-	public ModelDaoImpl(final String clusterName,  final String host, final String keySpace, final String cf) {
-		super(clusterName, host, keySpace, String.class, Model.class,  cf);
+	public SuperModelDaoImpl(final String clusterName,  final String host, final String keySpace, final String cf) {
+		super(clusterName, host, keySpace, String.class,  SuperModel.class, String.class, Model.class,  cf);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#save(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
-	public void save(final Model testModel) {
-		super.save(testModel.getKey(), testModel);
+	public void save(final SuperModel testSuperModel,  final Map<String, Model> modelMap) {
+		super.save(testSuperModel.getKey(), testSuperModel, modelMap);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#delete(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
-	public void delete(final Model testModel) {
-		super.delete(testModel.getKey());
+	public void delete(final SuperModel testSuperModel) {
+		super.delete(testSuperModel.getKey());
 	}
 	
-
 	/* (non-Javadoc)
-	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#getAllKeys()
+	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.SuperModelDao#delete(org.ebayopensource.turmeric.utils.cassandra.model.SuperModel)
 	 */
-	@Override
-	public Set<String> getAllKeys() {
-		return super.getKeys();
+	public SuperModel find(final String superKey) {
+		return super.find(superKey);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#containsKey(java.lang.Object)
 	 */
 	public boolean containsKey(final String key){
-		return super.containsKey(key);
+		//TODO implement me 
+		return false;
 	}
 
+	@Override
+	public Set<String> getAllKeys() {
+		return super.getKeys();
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#findItems(java.util.List, java.lang.String, java.lang.String)
 	 */
-	public Set<Model> findItems(final List<String> keys, final String rangeFrom, final String rangeTo ) {
-		return super.findItems(keys, rangeFrom, rangeTo);
+	public Map<String, SuperModel> findItems(final List<String> superKeys, final List<String> superColNames,  final List<String> keys, final String rangeFrom, final String rangeTo ) {
+		return super.findSuperItems(superKeys, superColNames, keys, rangeFrom, rangeTo);
 	}
 	
 }
