@@ -8,19 +8,17 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.tests;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 
 import org.ebayopensource.turmeric.utils.cassandra.dao.SuperModelDao;
 import org.ebayopensource.turmeric.utils.cassandra.dao.SuperModelDaoImpl;
@@ -67,7 +65,7 @@ public class SuperModelDaoTest extends BaseTest {
 			superModel.setKey(superKey);
 			testSuperModelDao.delete(superModel);
 		}
-		Thread.sleep(3000);
+		Thread.sleep(1000);
 	}
 
 	@Test
@@ -75,13 +73,57 @@ public class SuperModelDaoTest extends BaseTest {
 		SuperModel testSuperModel = createSuperModel();
 
 		// save
-		testSuperModelDao.save(testSuperModel, testSuperModel.getColumns());
+		testSuperModelDao.save(testSuperModel);
 
 		// find
-		testSuperModel = testSuperModelDao.find(SUPER_KEY);
+		String [] columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertEquals(2, testSuperModel.getColumns().size());
+		assertTrue( testSuperModel.getColumns().containsKey("key_aaa01model1"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		
 		assertNotNull(testSuperModel);
 	}
 
+	@Test
+	public void testContainsKey() {
+		SuperModel testSuperModel = createSuperModel();
+		assertFalse(testSuperModelDao.containsKey(SUPER_KEY));
+		// save
+		testSuperModelDao.save(testSuperModel);
+		assertTrue(testSuperModelDao.containsKey(SUPER_KEY));
+	
+		testSuperModelDao.delete(testSuperModel);
+		assertFalse(testSuperModelDao.containsKey(SUPER_KEY));
+		
+	}
+		
+	@Test
+	public void testFind() {
+		SuperModel testSuperModel = createSuperModel();
+
+		// save
+		testSuperModelDao.save(testSuperModel);
+
+		// find
+		String [] columnNames = null;  
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertNotNull(testSuperModel);
+		assertEquals(3, testSuperModel.getColumns().size());
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+
+		columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertNotNull(testSuperModel);
+		assertEquals(2, testSuperModel.getColumns().size());
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+		
+	}
 
 
 	@Test
@@ -89,17 +131,18 @@ public class SuperModelDaoTest extends BaseTest {
 		SuperModel testSuperModel = createSuperModel();
 		testSuperModel.setKey(SUPER_KEY);
 		// save
-		testSuperModelDao.save(testSuperModel, testSuperModel.getColumns());
-
+		testSuperModelDao.save(testSuperModel);
+		
 		// find
-		testSuperModel = testSuperModelDao.find(SUPER_KEY);
+		String [] columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+		testSuperModel = testSuperModelDao.find(SUPER_KEY , columnNames);
 		assertNotNull(testSuperModel);
 
 		// delete
 		testSuperModelDao.delete(testSuperModel);
-//		assertFalse(testSuperModelDao.containsKey(SUPER_KEY));
-		testSuperModel = testSuperModelDao.find(SUPER_KEY);
-		assertTrue(testSuperModel == null);
+		assertFalse(testSuperModelDao.containsKey(SUPER_KEY));
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertNull(testSuperModel);
 	}
 
 	@Test
@@ -110,7 +153,7 @@ public class SuperModelDaoTest extends BaseTest {
 		// save
 		for (int i = 0; i < 20; i++) {
 			testSuperModel.setKey(SUPER_KEY + i);
-			testSuperModelDao.save(testSuperModel, testSuperModel.getColumns());
+			testSuperModelDao.save(testSuperModel);
 		}
 
 		// gelAllKeys
@@ -121,7 +164,7 @@ public class SuperModelDaoTest extends BaseTest {
 	}
 
 	@Test
-	public void testFindItems() {
+	public void testMultipleItems() {
 
 		// findItems
 		ArrayList<String> superKeyList = new ArrayList<String>();
@@ -137,13 +180,19 @@ public class SuperModelDaoTest extends BaseTest {
 		testSuperModel2.setKey(superKeyList.get(2));
 
 		// save
-		testSuperModelDao.save(testSuperModel0, testSuperModel0.getColumns());
-		testSuperModelDao.save(testSuperModel1, testSuperModel1.getColumns());
-		testSuperModelDao.save(testSuperModel2, testSuperModel2.getColumns());
+		testSuperModelDao.save(testSuperModel0);
+		testSuperModelDao.save(testSuperModel1);
+		testSuperModelDao.save(testSuperModel2);
 
-		 Map<String, SuperModel> result = testSuperModelDao.findSuperItems(superKeyList, Arrays.asList("stringData", "booleanData"), Arrays.asList(KEY+ "model1", KEY+ "model3"), "", "");
+		 Map<String, SuperModel> result = testSuperModelDao.findItems(superKeyList, new String[] {KEY+ "model1", KEY+ "model3"});
 		assertNotNull(result);
 		assertEquals(3, result.size());
+		assertEquals(2, result.get(SUPER_KEY + "findItem_001").getColumns().size());
+
+		assertTrue( result.containsKey(SUPER_KEY + "findItem_002"));
+		
+		Map<String, Model> columns = result.get(SUPER_KEY + "findItem_001").getColumns();
+		assertEquals(2, result.get(SUPER_KEY + "findItem_001").getColumns().size());
 
 	}
 

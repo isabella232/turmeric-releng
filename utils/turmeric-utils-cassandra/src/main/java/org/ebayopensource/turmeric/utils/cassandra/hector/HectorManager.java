@@ -10,8 +10,6 @@ package org.ebayopensource.turmeric.utils.cassandra.hector;
 
 import java.util.ArrayList;
 
-import org.apache.cassandra.db.ColumnFamilyType;
-
 import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.hector.api.Cluster;

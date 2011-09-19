@@ -8,21 +8,20 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.hector;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.HSuperColumn;
-import me.prettyprint.hector.api.beans.SuperSlice;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.query.QueryResult;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /*
  * The Class HectorHelper.
@@ -109,8 +108,8 @@ public final class HectorHelper {
 			Field[] fields = entity.getClass().getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
-				Object value =  field.get(entity);
-				
+				Object value = field.get(entity);
+
 				if (value == null) {
 					// Field has no value so nothing to store
 					continue;
@@ -118,8 +117,8 @@ public final class HectorHelper {
 
 				String name = field.getName();
 
-				HColumn<String, Object> column = HFactory.createColumn(
-						name, value, StringSerializer.get(), ObjectSerializer.get());
+				HColumn<String, Object> column = HFactory.createColumn(name,
+						value, StringSerializer.get(), ObjectSerializer.get());
 
 				columns.add(column);
 			}
@@ -139,40 +138,42 @@ public final class HectorHelper {
 	 *            the entity
 	 * @return the columns
 	 */
-	public static <ST, T> List<HSuperColumn<String, String, ?>> getSuperColumns(
-			ST superEntity, Set<T> entityList) {
-		try {
-			List<HSuperColumn<String, String, ?>> superColumns = new ArrayList<HSuperColumn<String, String, ?>>();
-			Field[] fields = superEntity.getClass().getDeclaredFields();
-			for (Field field : fields) {
-				field.setAccessible(true);
-				Object value = field.get(superEntity);
-
-				if (value == null) {
-					// Field has no value so nothing to store
-					continue;
-				}
-				String superName = field.getName();
-
-				for (T entity : entityList) {
-					 List<HColumn<String, Object>> columns = getObjectColumns(entity);
-
-					HSuperColumn<String, String, Object> superColumn = HFactory
-							.createSuperColumn(superName, columns,
-									StringSerializer.get(),
-									StringSerializer.get(),
-									ObjectSerializer.get());
-
-					superColumns.add(superColumn);
-				}
-
-			}
-
-			return superColumns;
-		} catch (Exception e) {
-			throw new RuntimeException("Reflection exception", e);
-		}
-	}
+	// public static <ST, T> List<HSuperColumn<String, String, ?>>
+	// getSuperColumns(
+	// ST superEntity, Set<T> entityList) {
+	// try {
+	// List<HSuperColumn<String, String, ?>> superColumns = new
+	// ArrayList<HSuperColumn<String, String, ?>>();
+	// Field[] fields = superEntity.getClass().getDeclaredFields();
+	// for (Field field : fields) {
+	// field.setAccessible(true);
+	// Object value = field.get(superEntity);
+	//
+	// if (value == null) {
+	// // Field has no value so nothing to store
+	// continue;
+	// }
+	// String superName = field.getName();
+	//
+	// for (T entity : entityList) {
+	// List<HColumn<String, Object>> columns = getObjectColumns(entity);
+	//
+	// HSuperColumn<String, String, Object> superColumn = HFactory
+	// .createSuperColumn(superName, columns,
+	// StringSerializer.get(),
+	// StringSerializer.get(),
+	// ObjectSerializer.get());
+	//
+	// superColumns.add(superColumn);
+	// }
+	//
+	// }
+	//
+	// return superColumns;
+	// } catch (Exception e) {
+	// throw new RuntimeException("Reflection exception", e);
+	// }
+	// }
 
 	/**
 	 * Gets the string cols.
@@ -233,49 +234,55 @@ public final class HectorHelper {
 		}
 	}
 
-	public static <ST, T> void populateSuperEntity(ST st, T t,
-			QueryResult<SuperSlice<Object, String, byte[]>> result) {
+	public static <ST, T, SKeyType> void populateSuperEntity(ST st, T t,
+			SKeyType superKey, List<HSuperColumn<Object, String, byte[]>> result) {
 		try {
+			// load key for ST
+			// Assumes a Map for columns and 1 other field for key
 			Field[] superFields = st.getClass().getDeclaredFields();
 			for (Field superField : superFields) {
 				superField.setAccessible(true);
-				String superName = superField.getName();
+				// the key
+				if (!superField.getType().equals(Map.class)) {
 
-				// columns from each Supercolumns
-				if (superField.getGenericType() instanceof Set) {
+					superField.set(st, superKey);
+			
+				} else {
+					// load columns: T
+					HashMap<String, T> columns = new HashMap<String, T>();
 
-					Set<T> tSet = new HashSet<T>();
 					Field[] fields = t.getClass().getDeclaredFields();
+					for (Field field : fields) {
+						field.setAccessible(true);
 
-					HSuperColumn<Object, String, byte[]> superColumn = result
-							.get().getColumnByName(superName);
-					for (HColumn<String, byte[]> col : superColumn.getColumns()) {
+						for (HSuperColumn<Object, String, byte[]> superCol : result) {
+							List<HColumn<String, byte[]>> cols = superCol
+									.getColumns();
 
-						for (Field field : fields) {
-							field.setAccessible(true);
-							String name = field.getName();
-							Object newT = null;
-							try {
-								newT = t.getClass().newInstance();
-							} catch (InstantiationException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+							for (HColumn<String, byte[]> col : cols) {
+								if (col == null || col.getValue() == null
+										|| col.getValueBytes().capacity() == 0) {
+									// No data for this col
+									continue;
+								}
+
+								Object val = SerializerTypeInferer
+										.getSerializer(field.getType())
+										.fromBytes(col.getValue());
+								field.set(t, val);
+								columns.put((String) superCol.getName(), t);
+
 							}
-
-							if (col == null || col.getValue() == null
-									|| col.getValueBytes().capacity() == 0) {
-								// No data for this col
-								continue;
-							}
-
-							Object val = SerializerTypeInferer.getSerializer(
-									field.getType()).fromBytes(col.getValue());
-							field.set(t, val);
-							tSet.add((T) newT);
 						}
 					}
+					
+					superField.set(st, columns);
+
+					
 				}
+
 			}
+
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("Reflection Error ", e);
 		}

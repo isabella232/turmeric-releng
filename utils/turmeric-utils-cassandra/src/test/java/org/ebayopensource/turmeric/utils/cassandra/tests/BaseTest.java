@@ -8,7 +8,6 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.tests;
 
-import org.ebayopensource.turmeric.utils.cassandra.server.CassandraTestManager;
 
 /**
  * The Class BaseTest.

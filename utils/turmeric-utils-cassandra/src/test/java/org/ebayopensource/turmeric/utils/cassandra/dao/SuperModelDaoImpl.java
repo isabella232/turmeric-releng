@@ -38,8 +38,8 @@ public class SuperModelDaoImpl extends
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao#save(org.ebayopensource.turmeric.utils.cassandra.model.Model)
 	 */
-	public void save(final SuperModel testSuperModel,  final Map<String, Model> modelMap) {
-		super.save(testSuperModel.getKey(), testSuperModel, modelMap);
+	public void save(final SuperModel testSuperModel) {
+		super.save(testSuperModel.getKey(), testSuperModel.getColumns());
 	}
 
 	/* (non-Javadoc)
@@ -52,18 +52,20 @@ public class SuperModelDaoImpl extends
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.SuperModelDao#delete(org.ebayopensource.turmeric.utils.cassandra.model.SuperModel)
 	 */
-	public SuperModel find(final String superKey) {
-		return super.find(superKey);
+	public SuperModel find(final String superKey, final String [] columnNames ) {
+		return super.find(superKey, columnNames );
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#containsKey(java.lang.Object)
 	 */
 	public boolean containsKey(final String key){
-		//TODO implement me 
-		return false;
+		return super.containsKey(key);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.SuperModelDao#getAllKeys()
+	 */
 	@Override
 	public Set<String> getAllKeys() {
 		return super.getKeys();
@@ -72,8 +74,8 @@ public class SuperModelDaoImpl extends
 	/* (non-Javadoc)
 	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#findItems(java.util.List, java.lang.String, java.lang.String)
 	 */
-	public Map<String, SuperModel> findItems(final List<String> superKeys, final List<String> superColNames,  final List<String> keys, final String rangeFrom, final String rangeTo ) {
-		return super.findSuperItems(superKeys, superColNames, keys, rangeFrom, rangeTo);
+	public Map<String, SuperModel> findItems(final List<String> superKeys, final String [] columnNames ) {
+		return super.findItems(superKeys,  columnNames);
 	}
 	
 }

@@ -121,8 +121,12 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 				.setColumnFamily(columnFamilyName).setKey(key)
 				.setColumnNames(allColumnNames).execute();
 
-		if (result.get().getColumns().size() == 0) {
-			return null;
+		try { 
+			if(result.get().getColumns().isEmpty()){
+				return null;	
+			}
+		}catch (Exception e) {
+			return null;	
 		}
 
 		try {

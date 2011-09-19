@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ebayopensource.turmeric.utils.cassandra.model.Model;
 import org.ebayopensource.turmeric.utils.cassandra.model.SuperModel;
 
 /**
@@ -26,21 +25,22 @@ public interface SuperModelDao {
 	 *
 	 * @param testSuperModel the test model
 	 */
-	public void save(SuperModel testSuperModel, Map<String, Model> modelMap);
+	public void save(SuperModel testSuperModel);
 
 
 	/**
 	 * Find.
 	 *
 	 * @param key the key
+	 * @param columnNames the column names
 	 * @return the model
 	 */
-	public SuperModel find(String key);
+	public SuperModel find(String key, String [] columnNames );
 
 	/**
 	 * Delete.
 	 *
-	 * @param testModel the test model
+	 * @param testSuperModel the test super model
 	 */
 	public void delete(SuperModel testSuperModel);
 	
@@ -63,11 +63,9 @@ public interface SuperModelDao {
 	/**
 	 * Find items.
 	 *
-	 * @param keys the keys
-	 * @param rangeFrom the range from
-	 * @param rangeTo the range to
+	 * @param superKeys the super keys
+	 * @param columnNames the column names
 	 * @return the sets the
 	 */
-	public  Map<String, SuperModel> findSuperItems(final List<String> superKeys, final List<String> superColNames, 
-			 final List<String> keys, final String rangeFrom, final String rangeTo ) ;
+	public  Map<String, SuperModel> findItems(final List<String> superKeys, final String [] columnNames );;
 }

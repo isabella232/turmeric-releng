@@ -8,10 +8,10 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,7 +58,7 @@ public class ModelDaoTest extends BaseTest {
 			model.setKey(key);
 			testModelDao.delete(model);
 		}
-		Thread.sleep(3000);
+		Thread.sleep(1000);
 	}
 
 	@Test
