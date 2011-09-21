@@ -122,9 +122,26 @@ public class SuperModelDaoTest extends BaseTest {
 		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
 		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
 		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model3"));
-		
+	
+		//non consecutive
+		columnNames = new String [] {"key_aaa01model1", "key_aaa01model3"};  
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertNotNull(testSuperModel);
+		assertEquals(2, testSuperModel.getColumns().size());
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
+		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+	
+		// non ordered
+		columnNames = new String [] {"key_aaa01model3", "key_aaa01model1"};  
+		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
+		assertNotNull(testSuperModel);
+		assertEquals(2, testSuperModel.getColumns().size());
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
+		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+				
 	}
-
 
 	@Test
 	public void testDelete() {

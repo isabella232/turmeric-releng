@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import me.prettyprint.hector.api.mutation.Mutator;
 import me.prettyprint.hector.api.query.MultigetSuperSliceQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.RangeSuperSlicesQuery;
+import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
 
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
@@ -173,16 +175,19 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	public ST find(final SKeyType superKey, final String[] columnNames) {
 
 		List<HSuperColumn<Object, String, byte[]>> superColumns = null;
-		if (columnNames != null && columnNames.length > 0) {
-
+	
 			SuperSliceQuery<Object, Object, String, byte[]> superColumnQuery = HFactory
 					.createSuperSliceQuery(keySpace, SerializerTypeInferer
 							.getSerializer(superKeyTypeClass),
 							SerializerTypeInferer.getSerializer(keyTypeClass),
 							StringSerializer.get(), BytesArraySerializer.get());
-			superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey)
-					.setColumnNames(columnNames);
-
+			superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey);
+			if (columnNames == null || (columnNames.length > 0 && "All".equals(columnNames[0]))){
+				superColumnQuery.setRange("","" , false, 50);
+			}else{
+				superColumnQuery.setColumnNames(columnNames);
+			}
+			
 			QueryResult<SuperSlice<Object, String, byte[]>> result = superColumnQuery
 					.execute();
 
@@ -195,34 +200,6 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			} catch (Exception e) {
 				return null;
 			}
-
-		} else {
-
-			MultigetSuperSliceQuery<Object, Object, String, byte[]> multigetSuperSliceQuery = HFactory
-					.createMultigetSuperSliceQuery(keySpace,
-							SerializerTypeInferer
-									.getSerializer(superKeyTypeClass),
-							SerializerTypeInferer.getSerializer(keyTypeClass),
-							StringSerializer.get(), BytesArraySerializer.get());
-
-			multigetSuperSliceQuery.setColumnFamily(columnFamilyName);
-			multigetSuperSliceQuery.setKeys(superKey);
-
-			multigetSuperSliceQuery.setRange("", "", false, Integer.MAX_VALUE);
-
-			QueryResult<SuperRows<Object, Object, String, byte[]>> result = multigetSuperSliceQuery
-					.execute();
-
-			try {
-				superColumns = result.get().getByKey(superKey).getSuperSlice()
-						.getSuperColumns();
-				if (superColumns.isEmpty()) {
-					return null;
-				}
-			} catch (Exception e) {
-				return null;
-			}
-		}
 
 		try {
 			ST st = superPersistentClass.newInstance();
