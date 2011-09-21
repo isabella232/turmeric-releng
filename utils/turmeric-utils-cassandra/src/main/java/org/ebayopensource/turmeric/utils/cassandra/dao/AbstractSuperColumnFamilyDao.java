@@ -116,12 +116,12 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	 * @param modelMap
 	 *            the model map
 	 */
-	public void save(SKeyType superKey, Map<String, T> modelMap) {
+	public void save(SKeyType superKey, Map<KeyType, T> modelMap) {
 
 		Mutator<Object> mutator = HFactory.createMutator(keySpace,
 				SerializerTypeInferer.getSerializer(superKeyTypeClass));
 
-		for (String key : modelMap.keySet()) {
+		for (KeyType key : modelMap.keySet()) {
 			T t = modelMap.get(key);
 			List<HColumn<String, Object>> columns = HectorHelper
 					.getObjectColumns(t);
@@ -172,7 +172,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	 *            Optional the column names
 	 * @return the t
 	 */
-	public ST find(final SKeyType superKey, final String[] columnNames) {
+	public ST find(final SKeyType superKey, final KeyType[] superColumnNames) {
 
 		List<HSuperColumn<Object, String, byte[]>> superColumns = null;
 	
@@ -182,10 +182,10 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 							SerializerTypeInferer.getSerializer(keyTypeClass),
 							StringSerializer.get(), BytesArraySerializer.get());
 			superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey);
-			if (columnNames == null || (columnNames.length > 0 && "All".equals(columnNames[0]))){
+			if (superColumnNames == null || (superColumnNames.length > 0 && "All".equals(superColumnNames[0]))){
 				superColumnQuery.setRange("","" , false, 50);
 			}else{
-				superColumnQuery.setColumnNames(columnNames);
+				superColumnQuery.setColumnNames(superColumnNames);
 			}
 			
 			QueryResult<SuperSlice<Object, String, byte[]>> result = superColumnQuery
@@ -221,12 +221,12 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	 *            Optional the column names
 	 * @return the map
 	 */
-	public Map<String, ST> findItems(final List<SKeyType> superKeys,
-			final String[] columnNames) {
+	public Map<SKeyType, ST> findItems(final List<SKeyType> superKeys,
+			final KeyType[] superColumnNames) {
 
-		Map<String, ST> result = new HashMap<String, ST>();
+		Map<SKeyType, ST> result = new HashMap<SKeyType, ST>();
 		for (SKeyType superKey : superKeys) {
-			result.put((String) superKey, find(superKey, columnNames));
+			result.put( superKey, find(superKey, superColumnNames));
 		}
 
 		// Map<String, ST> items = new HashMap<String, ST>();
@@ -321,19 +321,20 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	 * 
 	 * @return the keys
 	 */
-	public Set<String> getKeys() {
+	public Set<KeyType> getKeys() {
 		int rows = 0;
 		int pagination = 50;
-		Set<String> rowKeys = new HashSet<String>();
+		Set<KeyType> rowKeys = new HashSet<KeyType>();
 
-		SuperRow<Object, String, String, byte[]> lastRow = null;
+		SuperRow<Object, Object, String, byte[]> lastRow = null;
 
 		do {
-			RangeSuperSlicesQuery<Object, String, String, byte[]> rangeSuperSliceQuery = HFactory
+			RangeSuperSlicesQuery<Object, Object, String, byte[]> rangeSuperSliceQuery = HFactory
 					.createRangeSuperSlicesQuery(keySpace,
 							SerializerTypeInferer
 									.getSerializer(superKeyTypeClass),
-							StringSerializer.get(), StringSerializer.get(),
+									SerializerTypeInferer
+									.getSerializer(keyTypeClass), StringSerializer.get(),
 							BytesArraySerializer.get());
 
 			rangeSuperSliceQuery.setColumnFamily(columnFamilyName);
@@ -345,15 +346,15 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			rangeSuperSliceQuery.setRange("", "", false, 2);
 			rangeSuperSliceQuery.setRowCount(pagination);
 
-			QueryResult<OrderedSuperRows<Object, String, String, byte[]>> result = rangeSuperSliceQuery
+			QueryResult<OrderedSuperRows<Object, Object, String, byte[]>> result = rangeSuperSliceQuery
 					.execute();
-			OrderedSuperRows<Object, String, String, byte[]> orderedSuperRows = result
+			OrderedSuperRows<Object, Object, String, byte[]> orderedSuperRows = result
 					.get();
 			rows = orderedSuperRows.getCount();
 
-			for (SuperRow<Object, String, String, byte[]> row : orderedSuperRows) {
+			for (SuperRow<Object, Object, String, byte[]> row : orderedSuperRows) {
 				if (!row.getSuperSlice().getSuperColumns().isEmpty()) {
-					rowKeys.add((String) row.getKey());
+					rowKeys.add( (KeyType) row.getKey());
 					lastRow = orderedSuperRows.getList().get(rows - 1);
 				}
 			}
