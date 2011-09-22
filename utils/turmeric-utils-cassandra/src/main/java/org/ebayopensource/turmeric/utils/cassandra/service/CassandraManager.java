@@ -18,46 +18,44 @@ import org.ebayopensource.turmeric.utils.MemoryUsage;
 
 /**
  * The Class CassandraManager.
+ * 
  * @author jamuguerza
  */
 public class CassandraManager {
+    /** The cassandra service. */
+    private static EmbeddedCassandraService cassandraService = null;
 
-	/** The cassandra service. */
-	private static EmbeddedCassandraService cassandraService = null;
+    /** The Constant LOGGER. */
+    private static final Logger LOGGER = LogManager.getLogManager().getLogger(MemoryUsage.class.getName());
 
-	/** The Constant LOGGER. */
-	private static final Logger LOGGER = LogManager.getLogManager().getLogger(
-			MemoryUsage.class.getName());
+    public static EmbeddedCassandraService getEmbeddedService() {
+        return cassandraService;
+    }
 
-	/**
-	 * Initialize.
-	 */
-	public static void initialize() {
-		try {
-			if (cassandraService == null) {
-				loadConfig();
+    /**
+     * Initialize.
+     */
+    public static void initialize() {
+        try {
+            printConfig();
+            if (cassandraService == null) {
+                cassandraService = new EmbeddedCassandraService();
+                cassandraService.start();
+            }
 
-				cassandraService = new EmbeddedCassandraService();
-				cassandraService.start();
-			}
+        }
+        catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Could not load Cassandra service" + e.getMessage(), e);
+            if (cassandraService != null) {
+                cassandraService = null;
+            }
+        }
+    }
 
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE,
-					"Could not load Cassandra service" + e.getMessage(), e);
-		}
+    private static void printConfig() {
+        System.out.println("Cassandra embedded service. log4j.configuration = "
+                        + System.getProperty("log4j.configuration"));
+        System.out.println("Cassandra embedded service.cassandra.config = " + System.getProperty("cassandra.config"));
+    }
 
-	}
-
-	/**
-	 * Load config.
-	 */
-	private static void loadConfig() {
-		System.setProperty("log4j.configuration",
-				"META-INF/config/cassandra/log4j.properties");
-
-		System.setProperty("cassandra.config",
-				"META-INF/config/cassandra/cassandra.yaml");
-	}
-
-	
 }
