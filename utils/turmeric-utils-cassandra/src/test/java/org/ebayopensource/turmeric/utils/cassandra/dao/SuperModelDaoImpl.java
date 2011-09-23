@@ -72,12 +72,12 @@ public class SuperModelDaoImpl<SK, K> extends
 		return (Set<SK>) super.getKeys();
 	}
 	
-//	/* (non-Javadoc)
-//	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#findItems(java.util.List, java.lang.String, java.lang.String)
-//	 */
-//	public Map<SK, SuperModel> findItems(final List<SK> superKeys, final K [] columnNames ) {
-//		return super.findItems(superKeys,  columnNames);
-//	}
+	/* (non-Javadoc)
+	 * @see org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao#findItems(java.util.List, java.lang.String, java.lang.String)
+	 */
+	public Map<SK, SuperModel> findItems(final List<SK> superKeys, final K [] columnNames ) {
+		return super.findItems(superKeys,  columnNames);
+	}
 
 	
 

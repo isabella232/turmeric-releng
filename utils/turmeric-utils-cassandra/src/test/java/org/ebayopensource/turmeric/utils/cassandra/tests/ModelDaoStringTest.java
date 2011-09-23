@@ -30,7 +30,7 @@ import org.junit.Test;
  * 
  * @author jamuguerza
  */
-public class ModelDaoTest extends BaseTest {
+public class ModelDaoStringTest extends BaseTest {
 
 	/** The test model dao. */
 	private static ModelDao testModelDao;
@@ -48,13 +48,13 @@ public class ModelDaoTest extends BaseTest {
 	public static void beforeClass() throws Exception {
 		CassandraTestManager.initialize();
 		testModelDao = new ModelDaoImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,
-				"TestCF");
+				"TestStringCF", String.class);
 	}
 
 	@After
 	public void after() throws Exception {
-		for (String key : testModelDao.getAllKeys()) {
-			Model model = new Model();
+		for (Object key : testModelDao.getAllKeys()) {
+			Model model = new Model("");
 			model.setKey(key);
 			testModelDao.delete(model);
 		}
@@ -64,12 +64,16 @@ public class ModelDaoTest extends BaseTest {
 	@Test
 	public void testSave() {
 		Model testModel = createModel();
+		testModel.setKey(KEY + "test_save");
 
 		// save
 		testModelDao.save(testModel);
 
+		//Contains
+		assertTrue(testModelDao.containsKey(KEY + "test_save"));
+
 		// find
-		testModel = testModelDao.find(KEY);
+		testModel = testModelDao.find(KEY+ "test_save");
 		assertNotNull(testModel);
 	}
 
@@ -149,7 +153,7 @@ public class ModelDaoTest extends BaseTest {
 	}
 
 	private Model createModel() {
-		Model testModel = new Model();
+		Model testModel = new Model("");
 		testModel.setKey(KEY);
 		testModel.setBooleanData(Boolean.TRUE);
 		testModel.setIntData(Integer.MAX_VALUE);

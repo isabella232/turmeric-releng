@@ -226,9 +226,9 @@ public class SuperModelDaoIntegerStringTest extends BaseTest {
 		
 		
 		HashMap<String, Model> columns = new HashMap<String, Model>();
-		columns.put(model1.getKey(), model1);
-		columns.put(model2.getKey(), model2);
-		columns.put(model3.getKey(), model3);
+		columns.put((String) model1.getKey(), model1);
+		columns.put((String) model2.getKey(), model2);
+		columns.put((String) model3.getKey(), model3);
 		
 		testSuperModel.setKey(SUPER_KEY);
 		testSuperModel.setColumns(columns);
@@ -237,7 +237,7 @@ public class SuperModelDaoIntegerStringTest extends BaseTest {
 	}
 	
 	private Model createModel() {
-		Model testModel = new Model();
+		Model testModel = new Model("");
 		testModel.setKey(KEY);
 		testModel.setBooleanData(Boolean.TRUE);
 		testModel.setIntData(Integer.MAX_VALUE);

@@ -34,7 +34,7 @@ import org.junit.Test;
  * 
  * @author jamuguerza
  */
-public class SuperModelDaoStringStringTest extends BaseTest {
+public class SuperModelDaoStringLongTest extends BaseTest {
 
 	/** The test Super model dao. */
 	private static SuperModelDao testSuperModelDao;
@@ -43,7 +43,7 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 	private static String SUPER_KEY = "superKey_001";
 
 	/** The KEY. */
-	private static String KEY = "key_aaa01";
+	private static Long KEY = 1L;
 
 	/**
 	 * Before.
@@ -55,13 +55,13 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 	public static void beforeClass() throws Exception {
 		CassandraTestManager.initialize();
 		testSuperModelDao = new SuperModelDaoImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,
-				"TestSuperStringStringCF", String.class, String.class);
+				"TestSuperStringLongCF", String.class, Long.class);
 	}
 
 	@After
 	public void after() throws Exception {
 		for (Object superKey : testSuperModelDao.getAllKeys()) {
-			SuperModel superModel = new SuperModel("","");
+			SuperModel superModel = new SuperModel("",0L);
 			superModel.setKey(superKey);
 			testSuperModelDao.delete(superModel);
 		}
@@ -76,12 +76,12 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 		testSuperModelDao.save(testSuperModel);
 
 		// find
-		String [] columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+		Long [] columnNames = new Long [] {100L, 101L};  
 
 		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
 		assertEquals(2, testSuperModel.getColumns().size());
-		assertTrue( testSuperModel.getColumns().containsKey("key_aaa01model1"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
+		assertTrue( testSuperModel.getColumns().containsKey(100L));
+		assertTrue(testSuperModel.getColumns().containsKey(101L));
 		
 		assertNotNull(testSuperModel);
 	}
@@ -106,40 +106,40 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 		// save
 		testSuperModelDao.save(testSuperModel);
 
-		// find
-		String [] columnNames = null;  
+//		// find
+		Long [] columnNames = null;  
 		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
 		assertNotNull(testSuperModel);
 		assertEquals(3, testSuperModel.getColumns().size());
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+		assertTrue(testSuperModel.getColumns().containsKey(100L));
+		assertTrue(testSuperModel.getColumns().containsKey(101L));
+		assertTrue(testSuperModel.getColumns().containsKey(102L));
 
-		columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+		columnNames = new Long [] {100L, 101L};  
 		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
 		assertNotNull(testSuperModel);
 		assertEquals(2, testSuperModel.getColumns().size());
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model2"));
-		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+		assertTrue(testSuperModel.getColumns().containsKey(100L));
+		assertTrue(testSuperModel.getColumns().containsKey(101L));
+		assertFalse(testSuperModel.getColumns().containsKey(102L));
 	
 		//non consecutive
-		columnNames = new String [] {"key_aaa01model1", "key_aaa01model3"};  
+		columnNames = new Long [] {100L,102L};  
 		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
 		assertNotNull(testSuperModel);
 		assertEquals(2, testSuperModel.getColumns().size());
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
-		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model2"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+		assertTrue(testSuperModel.getColumns().containsKey(100L));
+		assertFalse(testSuperModel.getColumns().containsKey(101L));
+		assertTrue(testSuperModel.getColumns().containsKey(102L));
 	
 		// non ordered
-		columnNames = new String [] {"key_aaa01model3", "key_aaa01model1"};  
+		columnNames = new Long [] {102L, 100L};  
 		testSuperModel = testSuperModelDao.find(SUPER_KEY, columnNames);
 		assertNotNull(testSuperModel);
 		assertEquals(2, testSuperModel.getColumns().size());
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model1"));
-		assertFalse(testSuperModel.getColumns().containsKey("key_aaa01model2"));
-		assertTrue(testSuperModel.getColumns().containsKey("key_aaa01model3"));
+		assertTrue(testSuperModel.getColumns().containsKey(100L));
+		assertFalse(testSuperModel.getColumns().containsKey(101L));
+		assertTrue(testSuperModel.getColumns().containsKey(102L));
 				
 	}
 
@@ -151,7 +151,7 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 		testSuperModelDao.save(testSuperModel);
 		
 		// find
-		String [] columnNames = new String [] {"key_aaa01model1", "key_aaa01model2"};  
+		Long [] columnNames = new Long[] {101L, 102L};  
 		testSuperModel = testSuperModelDao.find(SUPER_KEY , columnNames);
 		assertNotNull(testSuperModel);
 
@@ -201,7 +201,7 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 		testSuperModelDao.save(testSuperModel1);
 		testSuperModelDao.save(testSuperModel2);
 
-		 Map<String, SuperModel> result = testSuperModelDao.findItems(superKeyList, new String[] {KEY+ "model1", KEY+ "model3"});
+		 Map<String, SuperModel> result = testSuperModelDao.findItems(superKeyList, new Long[] {100L, 102L});
 		assertNotNull(result);
 		assertEquals(3, result.size());
 		assertEquals(2, result.get(SUPER_KEY + "findItem_001").getColumns().size());
@@ -214,19 +214,19 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 	}
 
 	private SuperModel createSuperModel() {
-		SuperModel testSuperModel = new SuperModel("", "" );
+		SuperModel testSuperModel = new SuperModel("", 0L );
 		
 		Model model1 = createModel();
-		model1.setKey(model1.getKey()  + "model1");
+		model1.setKey(100L);
 		Model model2 = createModel();
-		model2.setKey(model2.getKey() + "model2");
+		model2.setKey(101L);
 		Model model3 = createModel();
-		model3.setKey(model3.getKey()  + "model3");
+		model3.setKey(102L);
 		
-		HashMap<String, Model> columns = new HashMap<String, Model>();
-		columns.put((String)model1.getKey(), model1);
-		columns.put((String)model2.getKey(), model2);
-		columns.put((String)model3.getKey(), model3);
+		HashMap<Long, Model> columns = new HashMap<Long, Model>();
+		columns.put((Long)model1.getKey(), model1);
+		columns.put((Long)model2.getKey(), model2);
+		columns.put((Long)model3.getKey(), model3);
 		
 		testSuperModel.setKey(SUPER_KEY);
 		testSuperModel.setColumns(columns);
@@ -235,7 +235,7 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 	}
 	
 	private Model createModel() {
-		Model testModel = new Model("");
+		Model testModel = new Model(0L);
 		testModel.setKey(KEY);
 		testModel.setBooleanData(Boolean.TRUE);
 		testModel.setIntData(Integer.MAX_VALUE);

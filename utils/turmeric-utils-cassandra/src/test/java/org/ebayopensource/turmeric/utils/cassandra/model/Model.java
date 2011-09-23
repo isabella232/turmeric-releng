@@ -14,13 +14,15 @@ import java.util.Date;
  * The Class Model.
  * @author jamuguerza
  */
-public class Model {
+public class Model<K> {
 	
-	/** The key. */
-	private String key;
-	
+	public Model(K keyType){
+	}
 	/** The time data. */
 	private Date timeData;
+	
+	/** The key. */
+	private K key;
 	
 	/** The boolean data. */
 	private boolean booleanData;
@@ -129,7 +131,7 @@ public class Model {
 	 *
 	 * @param key the new key
 	 */
-	public void setKey(String key) {
+	public void setKey(K key) {
 		this.key = key;
 	}
 
@@ -138,7 +140,7 @@ public class Model {
 	 *
 	 * @return the key
 	 */
-	public String getKey() {
+	public K getKey() {
 		return key;
 	}
 }

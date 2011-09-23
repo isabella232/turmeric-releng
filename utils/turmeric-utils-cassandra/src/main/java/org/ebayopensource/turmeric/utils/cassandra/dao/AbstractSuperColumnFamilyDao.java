@@ -153,7 +153,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 		multigetSuperSliceQuery.setColumnFamily(columnFamilyName);
 		multigetSuperSliceQuery.setKeys(superKey);
 
-		multigetSuperSliceQuery.setRange("", "", false, Integer.MAX_VALUE);
+		multigetSuperSliceQuery.setRange(null, null, false, Integer.MAX_VALUE);
 
 		QueryResult<SuperRows<Object, Object, String, byte[]>> result = multigetSuperSliceQuery
 				.execute();
@@ -188,7 +188,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 							StringSerializer.get(), BytesArraySerializer.get());
 			superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey);
 			if (superColumnNames == null || (superColumnNames.length > 0 && "All".equals(superColumnNames[0]))){
-				superColumnQuery.setRange("","" , false, 50);
+				superColumnQuery.setRange(null,null , false, 50);
 			}else{
 				superColumnQuery.setColumnNames(superColumnNames);
 			}
@@ -207,18 +207,12 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			}
 
 		try {
-//			ST st = superPersistentClass.newInstance();
-			
-			
 			Constructor<?>[] constructorsST = superPersistentClass.getConstructors();
 			ST st = (ST) constructorsST[0].newInstance(superKeyTypeClass, keyTypeClass);
 			
-			
-			T t = persistentClass.newInstance();
-//			Constructor<?>[] constructorsT = persistentClass.getConstructors();
-//			T t = (T) constructorsT[0].newInstance("", "");
-			
-			
+			Constructor<?>[] constructorsT = persistentClass.getConstructors();
+			T t = (T) constructorsT[0].newInstance(keyTypeClass);
+
 			HectorHelper.populateSuperEntity(st, t, superKey, superColumns);
 			return st;
 		} catch (Exception e) {
