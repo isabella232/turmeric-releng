@@ -18,14 +18,14 @@ import org.ebayopensource.turmeric.utils.cassandra.model.SuperModel;
  * The Interface SuperModelDao.
  * @author jamuguerza
  */
-public interface SuperModelDao {
+public interface SuperModelDao<SK, K> {
 	
 	/**
 	 * Save.
 	 *
 	 * @param testSuperModel the test model
 	 */
-	public void save(SuperModel testSuperModel);
+	public void save(SuperModel<?, ?> testSuperModel);
 
 
 	/**
@@ -35,14 +35,14 @@ public interface SuperModelDao {
 	 * @param columnNames the column names
 	 * @return the model
 	 */
-	public SuperModel find(String key, String [] columnNames );
+	public SuperModel<?, ?>  find(SK key, K [] columnNames );
 
 	/**
 	 * Delete.
 	 *
 	 * @param testSuperModel the test super model
 	 */
-	public void delete(SuperModel testSuperModel);
+	public void delete(SuperModel<?, ?> testSuperModel);
 	
 	/**
 	 * Contains key.
@@ -50,7 +50,7 @@ public interface SuperModelDao {
 	 * @param key the key
 	 * @return true, if successful
 	 */
-	public boolean containsKey(String key);
+	public boolean containsKey(SK key);
 	
 
 	/**
@@ -58,7 +58,7 @@ public interface SuperModelDao {
 	 *
 	 * @return the all keys
 	 */
-	public Set<String> getAllKeys();
+	public Set<SK> getAllKeys();
 	
 	/**
 	 * Find items.
@@ -67,5 +67,5 @@ public interface SuperModelDao {
 	 * @param columnNames the column names
 	 * @return the sets the
 	 */
-	public  Map<String, SuperModel> findItems(final List<String> superKeys, final String [] columnNames );;
+	public  Map<SK, SuperModel> findItems(final List<SK> superKeys, final K [] columnNames );
 }

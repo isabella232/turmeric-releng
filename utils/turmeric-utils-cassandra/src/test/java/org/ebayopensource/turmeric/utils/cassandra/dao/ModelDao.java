@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface ModelDao.
  * @author jamuguerza

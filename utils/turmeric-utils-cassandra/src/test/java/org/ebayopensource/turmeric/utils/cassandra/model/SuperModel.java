@@ -15,26 +15,29 @@ import java.util.Map;
  * The Class ModelSuper.
  * @author jamuguerza
  */
-public class SuperModel  {
+public class SuperModel<SK, K>  {
 
+	public SuperModel(SK superKeyType, K keyType){
+	}
+		
 	/** The key data. */
-	private String key;
+	private SK key;
 	
-	private Map<String, Model> columns ;
+	private Map<K, Model> columns ;
 
-	public void setKey(String key) {
+	public void setKey(SK key) {
 		this.key = key;
 	}
 
-	public String getKey() {
+	public SK getKey() {
 		return key;
 	}
 
-	public void setColumns(Map<String, Model> columns) {
+	public void setColumns(Map<K, Model> columns) {
 		this.columns = columns;
 	}
 
-	public Map<String, Model> getColumns() {
+	public Map<K, Model> getColumns() {
 		return columns;
 	}
 		

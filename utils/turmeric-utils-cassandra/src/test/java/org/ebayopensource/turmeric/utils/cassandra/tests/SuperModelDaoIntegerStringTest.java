@@ -30,17 +30,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * The Class ModelDaoTest.
+ * The Class SuperModelDaoIntegerStringTest.
  * 
  * @author jamuguerza
  */
-public class SuperModelDaoTest extends BaseTest {
+public class SuperModelDaoIntegerStringTest extends BaseTest {
 
 	/** The test Super model dao. */
 	private static SuperModelDao testSuperModelDao;
 
 	/** The SUPER_KEY. */
-	private static String SUPER_KEY = "superKey_001";
+	private static Integer SUPER_KEY = 1;
 
 	/** The KEY. */
 	private static String KEY = "key_aaa01";
@@ -55,13 +55,13 @@ public class SuperModelDaoTest extends BaseTest {
 	public static void beforeClass() throws Exception {
 		CassandraTestManager.initialize();
 		testSuperModelDao = new SuperModelDaoImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,
-				"TestSuperCF");
+				"TestSuperIntegerStringCF", Integer.class, String.class);
 	}
 
 	@After
 	public void after() throws Exception {
-		for (String superKey : testSuperModelDao.getAllKeys()) {
-			SuperModel superModel = new SuperModel();
+		for (Object superKey : testSuperModelDao.getAllKeys()) {
+			SuperModel superModel = new SuperModel(1,"");
 			superModel.setKey(superKey);
 			testSuperModelDao.delete(superModel);
 		}
@@ -184,10 +184,10 @@ public class SuperModelDaoTest extends BaseTest {
 	public void testMultipleItems() {
 
 		// findItems
-		ArrayList<String> superKeyList = new ArrayList<String>();
-		superKeyList.add(SUPER_KEY + "findItem_001");
-		superKeyList.add(SUPER_KEY + "findItem_002");
-		superKeyList.add(SUPER_KEY + "findItem_003");
+		ArrayList<Integer> superKeyList = new ArrayList<Integer>();
+		superKeyList.add(SUPER_KEY  +1);
+		superKeyList.add(SUPER_KEY + 2);
+		superKeyList.add(SUPER_KEY + 3);
 
 		SuperModel testSuperModel0 = createSuperModel();
 		testSuperModel0.setKey(superKeyList.get(0));
@@ -201,20 +201,21 @@ public class SuperModelDaoTest extends BaseTest {
 		testSuperModelDao.save(testSuperModel1);
 		testSuperModelDao.save(testSuperModel2);
 
-		 Map<String, SuperModel> result = testSuperModelDao.findItems(superKeyList, new String[] {KEY+ "model1", KEY+ "model3"});
+		 Map<Integer, SuperModel> result = testSuperModelDao.findItems(superKeyList, new String[] {KEY+ "model1", KEY+ "model3"});
 		assertNotNull(result);
 		assertEquals(3, result.size());
-		assertEquals(2, result.get(SUPER_KEY + "findItem_001").getColumns().size());
+		assertEquals(2, result.get(SUPER_KEY + 1).getColumns().size());
 
-		assertTrue( result.containsKey(SUPER_KEY + "findItem_002"));
+		assertTrue( result.containsKey(SUPER_KEY + 2));
 		
-		Map<String, Model> columns = result.get(SUPER_KEY + "findItem_001").getColumns();
-		assertEquals(2, result.get(SUPER_KEY + "findItem_001").getColumns().size());
+		Map<String, Model> columns = result.get(SUPER_KEY + 1).getColumns();
+		assertEquals(2, result.get(SUPER_KEY + 1 ).getColumns().size());
 
 	}
 
 	private SuperModel createSuperModel() {
-		SuperModel testSuperModel = new SuperModel();
+		SuperModel testSuperModel = new SuperModel(0L, "" );
+
 		
 		Model model1 = createModel();
 		model1.setKey(model1.getKey()  + "model1");
@@ -222,6 +223,7 @@ public class SuperModelDaoTest extends BaseTest {
 		model2.setKey(model2.getKey() + "model2");
 		Model model3 = createModel();
 		model3.setKey(model3.getKey()  + "model3");
+		
 		
 		HashMap<String, Model> columns = new HashMap<String, Model>();
 		columns.put(model1.getKey(), model1);
