@@ -237,11 +237,10 @@ public class SuperModelDaoStringLongTest extends BaseTest {
 	private Model createModel() {
 		Model testModel = new Model(0L);
 		testModel.setKey(KEY);
-		testModel.setBooleanData(Boolean.TRUE);
-		testModel.setIntData(Integer.MAX_VALUE);
-		testModel.setLongData(Long.MAX_VALUE);
-		testModel.setStringData("any String");
-		testModel.setTimeData(new Date(System.currentTimeMillis()));
+		Map columns = new HashMap<String, String>();
+		columns.put("coulmn1","value1");
+		testModel.setColumns(columns);
+		
 		return testModel;
 	}
 

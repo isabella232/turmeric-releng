@@ -213,7 +213,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			Constructor<?>[] constructorsT = persistentClass.getConstructors();
 			T t = (T) constructorsT[0].newInstance(keyTypeClass);
 
-			HectorHelper.populateSuperEntity(st, t, superKey, superColumns);
+			HectorHelper.populateSuperEntity(st, t, superKey, keyTypeClass,  superColumns);
 			return st;
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating persistent class", e);

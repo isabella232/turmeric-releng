@@ -15,6 +15,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao;
@@ -155,11 +157,9 @@ public class ModelDaoLongTest extends BaseTest {
 	private Model createModel() {
 		Model testModel = new Model(0L);
 		testModel.setKey(KEY);
-		testModel.setBooleanData(Boolean.TRUE);
-		testModel.setIntData(Integer.MAX_VALUE);
-		testModel.setLongData(Long.MAX_VALUE);
-		testModel.setStringData("any String");
-		testModel.setTimeData(new Date(System.currentTimeMillis()));
+		Map columns = new HashMap<String, String>();
+		columns.put("coulmn1","value1");
+		testModel.setColumns(columns);
 		return testModel;
 	}
 
