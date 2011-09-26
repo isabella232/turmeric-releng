@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,10 +35,10 @@ import me.prettyprint.hector.api.query.RangeSuperSlicesQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
 
+import org.ebayopensource.turmeric.utils.ReflectionUtils;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorHelper;
 import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class AbstractColumnFamilyDao.
  * 
@@ -91,6 +92,8 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 	 * @param columnFamilyName
 	 *            the column family name
 	 */
+			
+
 	public AbstractSuperColumnFamilyDao(final String clusterName,
 			final String host, final String s_keyspace,
 			final Class<SKeyType> superKeyTypeClass,
@@ -107,6 +110,8 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 		this.persistentClass = persistentClass;
 
 	}
+
+
 
 	/**
 	 * Save.
@@ -127,7 +132,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 					.getObjectColumns(t);
 			HSuperColumn<Object, String, Object> superColumn = HFactory
 					.createSuperColumn(key, columns, SerializerTypeInferer
-							.getSerializer(superKeyTypeClass), StringSerializer
+							.getSerializer(keyTypeClass), StringSerializer
 							.get(), ObjectSerializer.get());
 
 			mutator.addInsertion(superKey, columnFamilyName, superColumn);
@@ -148,7 +153,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 		multigetSuperSliceQuery.setColumnFamily(columnFamilyName);
 		multigetSuperSliceQuery.setKeys(superKey);
 
-		multigetSuperSliceQuery.setRange("", "", false, Integer.MAX_VALUE);
+		multigetSuperSliceQuery.setRange(null, null, false, Integer.MAX_VALUE);
 
 		QueryResult<SuperRows<Object, Object, String, byte[]>> result = multigetSuperSliceQuery
 				.execute();
@@ -183,7 +188,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 							StringSerializer.get(), BytesArraySerializer.get());
 			superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey);
 			if (superColumnNames == null || (superColumnNames.length > 0 && "All".equals(superColumnNames[0]))){
-				superColumnQuery.setRange("","" , false, 50);
+				superColumnQuery.setRange(null,null , false, 50);
 			}else{
 				superColumnQuery.setColumnNames(superColumnNames);
 			}
@@ -202,10 +207,13 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			}
 
 		try {
-			ST st = superPersistentClass.newInstance();
-			T t = persistentClass.newInstance();
+			Constructor<?>[] constructorsST = superPersistentClass.getConstructors();
+			ST st = (ST) constructorsST[0].newInstance(superKeyTypeClass, keyTypeClass);
+			
+			Constructor<?>[] constructorsT = persistentClass.getConstructors();
+			T t = (T) constructorsT[0].newInstance(keyTypeClass);
 
-			HectorHelper.populateSuperEntity(st, t, superKey, superColumns);
+			HectorHelper.populateSuperEntity(st, t, superKey, keyTypeClass,  superColumns);
 			return st;
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating persistent class", e);
@@ -229,76 +237,6 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			result.put( superKey, find(superKey, superColumnNames));
 		}
 
-		// Map<String, ST> items = new HashMap<String, ST>();
-		//
-		//
-		// List<HSuperColumn<Object, String, byte[]>> superColumns = null;
-		// if (columnNames != null && columnNames.length > 0) {
-		//
-		// SuperSliceQuery<Object, Object, String, byte[]> superColumnQuery =
-		// HFactory
-		// .createSuperSliceQuery(keySpace, SerializerTypeInferer
-		// .getSerializer(superKeyTypeClass),
-		// SerializerTypeInferer.getSerializer(keyTypeClass),
-		// StringSerializer.get(), BytesArraySerializer.get());
-		// superColumnQuery.setColumnFamily(columnFamilyName).setKey(superKey)
-		// .setColumnNames(columnNames);
-		//
-		//
-		// QueryResult<SuperSlice<Object, String, byte[]>> result =
-		// superColumnQuery
-		// .execute();
-		//
-		// try {
-		// superColumns = result.get().getSuperColumns();
-		//
-		// if (superColumns.isEmpty()) {
-		// return null;
-		// }
-		// } catch (Exception e) {
-		// return null;
-		// }
-		//
-		// } else {
-		//
-		// MultigetSuperSliceQuery<Object, Object, String, byte[]>
-		// multigetSuperSliceQuery = HFactory
-		// .createMultigetSuperSliceQuery(keySpace,
-		// SerializerTypeInferer
-		// .getSerializer(superKeyTypeClass),
-		// SerializerTypeInferer.getSerializer(keyTypeClass),
-		// StringSerializer.get(), BytesArraySerializer.get());
-		//
-		// multigetSuperSliceQuery.setColumnFamily(columnFamilyName);
-		// multigetSuperSliceQuery.setKeys(superKey);
-		//
-		// multigetSuperSliceQuery.setRange("", "", false, Integer.MAX_VALUE);
-		//
-		// QueryResult<SuperRows<Object, Object, String, byte[]>> result =
-		// multigetSuperSliceQuery
-		// .execute();
-		//
-		// try {
-		// superColumns = result.get().getByKey(superKeys).getSuperSlice()
-		// .getSuperColumns();
-		// if (superColumns.isEmpty()) {
-		// return null;
-		// }
-		// } catch (Exception e) {
-		// return null;
-		// }
-		// }
-		//
-		// try {
-		// ST st = superPersistentClass.newInstance();
-		// T t = persistentClass.newInstance();
-		// HectorHelper.populateSuperEntity(st, t, superKey, superColumns);
-		// return st;
-		// } catch (Exception e) {
-		// throw new RuntimeException("Error creating persistent class", e);
-		// }
-		//
-		// return items;
 		return result;
 	}
 
@@ -327,7 +265,6 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 		Set<KeyType> rowKeys = new HashSet<KeyType>();
 
 		SuperRow<Object, Object, String, byte[]> lastRow = null;
-
 		do {
 			RangeSuperSlicesQuery<Object, Object, String, byte[]> rangeSuperSliceQuery = HFactory
 					.createRangeSuperSlicesQuery(keySpace,
@@ -341,9 +278,9 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			if (lastRow != null) {
 				rangeSuperSliceQuery.setKeys(lastRow.getKey(), "");
 			} else {
-				rangeSuperSliceQuery.setKeys("", "");
+				rangeSuperSliceQuery.setKeys(null, null);
 			}
-			rangeSuperSliceQuery.setRange("", "", false, 2);
+			rangeSuperSliceQuery.setRange(null, null, false, 2);
 			rangeSuperSliceQuery.setRowCount(pagination);
 
 			QueryResult<OrderedSuperRows<Object, Object, String, byte[]>> result = rangeSuperSliceQuery

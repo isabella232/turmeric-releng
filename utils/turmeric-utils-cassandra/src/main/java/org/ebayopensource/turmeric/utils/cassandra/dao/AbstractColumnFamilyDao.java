@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
+import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -130,8 +131,10 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 		}
 
 		try {
-			T t = persistentClass.newInstance();
-			HectorHelper.populateEntity(t, result);
+			Constructor<?>[] constructorsT = persistentClass.getConstructors();
+			T t = (T) constructorsT[0].newInstance(keyTypeClass);
+
+			HectorHelper.populateEntity(t, key,result);
 			return t;
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating persistent class", e);
@@ -157,10 +160,10 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 	 * 
 	 * @return the keys
 	 */
-	public Set<String> getKeys() {
+	public Set<KeyType> getKeys() {
 		int rows = 0;
 		int pagination = 50;
-		Set<String> rowKeys = new HashSet<String>();
+		Set<KeyType> rowKeys = new HashSet<KeyType>();
 
 		Row<Object, String, byte[]> lastRow = null;
 
@@ -173,10 +176,10 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 			if (lastRow != null) {
 				rangeSlicesQuery.setKeys(lastRow.getKey(), "");
 			} else {
-				rangeSlicesQuery.setKeys("", "");
+				rangeSlicesQuery.setKeys(null, null);
 			}
 			rangeSlicesQuery.setReturnKeysOnly();
-			rangeSlicesQuery.setRange("", "", false,
+			rangeSlicesQuery.setRange(null, null, false,
 					keyTypeClass.getDeclaredFields().length);
 			rangeSlicesQuery.setRowCount(pagination);
 			QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
@@ -186,7 +189,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
 			for (Row<Object, String, byte[]> row : orderedRows) {
 				if (!row.getColumnSlice().getColumns().isEmpty()) {
-					rowKeys.add((String) row.getKey());
+					rowKeys.add((KeyType) row.getKey());
 				}
 			}
 
@@ -217,7 +220,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
 		multigetSliceQuery.setColumnFamily(columnFamilyName);
 		multigetSliceQuery.setKeys(keys.toArray());
-		multigetSliceQuery.setRange(rangeFrom, rangeTo, false ,Integer.MAX_VALUE);
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false ,50);
 
 		QueryResult<Rows<Object, String, byte[]>> result = multigetSliceQuery
 				.execute();

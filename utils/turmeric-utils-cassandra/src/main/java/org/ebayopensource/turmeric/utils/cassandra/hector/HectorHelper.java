@@ -11,8 +11,10 @@ package org.ebayopensource.turmeric.utils.cassandra.hector;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 
 import me.prettyprint.cassandra.serializers.ObjectSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
@@ -210,32 +212,38 @@ public final class HectorHelper {
 	 * @param result
 	 *            the result
 	 */
-	public static <T> void populateEntity(T t,
+	public static <T, KeyType> void populateEntity(T t, KeyType key,
 			QueryResult<ColumnSlice<String, byte[]>> result) {
 		try {
 			Field[] fields = t.getClass().getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
 				String name = field.getName();
-				HColumn<String, byte[]> col = result.get()
-						.getColumnByName(name);
-				if (col == null || col.getValue() == null
-						|| col.getValueBytes().capacity() == 0) {
-					// No data for this col
-					continue;
-				}
 
-				Object val = SerializerTypeInferer.getSerializer(
-						field.getType()).fromBytes(col.getValue());
-				field.set(t, val);
+				if (name.equals("key")) {
+					field.set(t, key);
+				} else {
+					HColumn<String, byte[]> col = result.get().getColumnByName(
+							name);
+					if (col == null || col.getValue() == null
+							|| col.getValueBytes().capacity() == 0) {
+						// No data for this col
+						continue;
+					}
+
+					Object val = SerializerTypeInferer.getSerializer(
+							field.getType()).fromBytes(col.getValue());
+					field.set(t, val);
+				}
 			}
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("Reflection Error ", e);
 		}
 	}
 
-	public static <ST, T, SKeyType> void populateSuperEntity(ST st, T t,
-			SKeyType superKey, List<HSuperColumn<Object, String, byte[]>> result) {
+	public static <ST, T, SKeyType, KeyType> void populateSuperEntity(ST st,
+			T t, SKeyType superKey, Class<KeyType> keyTypeClass,
+			List<HSuperColumn<Object, String, byte[]>> result) {
 		try {
 			// load key for ST
 			// Assumes a Map for columns and 1 other field for key
@@ -244,49 +252,120 @@ public final class HectorHelper {
 				superField.setAccessible(true);
 				// the key
 				if (!superField.getType().equals(Map.class)) {
-
 					superField.set(st, superKey);
-			
 				} else {
-					// load columns: T
-					HashMap<String, T> columns = new HashMap<String, T>();
+					Map<KeyType, T> superColumnMap = new HashMap<KeyType, T>();
+					
 
-					Field[] fields = t.getClass().getDeclaredFields();
-					for (Field field : fields) {
-						field.setAccessible(true);
+					Iterator<HSuperColumn<Object, String, byte[]>> superColumnsIterator = result
+							.iterator();
+					while (superColumnsIterator.hasNext()) {
+						HSuperColumn<Object, String, byte[]> superColumn = superColumnsIterator
+								.next();
+						KeyType superColumnKey = (KeyType) superColumn
+								.getName();
 
-						for (HSuperColumn<Object, String, byte[]> superCol : result) {
-							List<HColumn<String, byte[]>> cols = superCol
-									.getColumns();
+						Field[] fields = t.getClass().getDeclaredFields();
+						for (Field field : fields) {
+							field.setAccessible(true);
 
-							for (HColumn<String, byte[]> col : cols) {
-								if (col == null || col.getValue() == null
-										|| col.getValueBytes().capacity() == 0) {
-									// No data for this col
-									continue;
+							if (!field.getType().equals(Map.class)) {
+								field.set(t, superColumnKey);
+							} else {
+								Map<String, Object> columnsMap = new HashMap<String, Object>();
+								List<HColumn<String, byte[]>> columns = superColumn
+										.getColumns();
+								for (HColumn<String, byte[]> col : columns) {
+									if (col == null){
+										continue;
+									}
+
+									String name =  (String)StringSerializer.get()
+									.fromBytes(col.getName().getBytes());
+
+									Object val = SerializerTypeInferer
+											.getSerializer(field.getType())
+											.fromBytes(col.getValue());
+									
+									columnsMap.put(name, val);
+
 								}
-
-								Object val = SerializerTypeInferer
-										.getSerializer(field.getType())
-										.fromBytes(col.getValue());
-								field.set(t, val);
-								columns.put((String) superCol.getName(), t);
-
+								field.set(t, columnsMap);
 							}
 						}
+
+						superColumnMap.put(superColumnKey, t);
 					}
-					
-					superField.set(st, columns);
+					superField.set(st, superColumnMap);
 
-					
 				}
-
 			}
 
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("Reflection Error ", e);
 		}
 	}
+
+	// public static <ST, T, SKeyType, KeyType> void populateSuperEntity(ST st,
+	// T t,
+	// SKeyType superKey, List<HSuperColumn<Object, String, byte[]>> result) {
+	// try {
+	// // load key for ST
+	// // Assumes a Map for columns and 1 other field for key
+	// Field[] superFields = st.getClass().getDeclaredFields();
+	// for (Field superField : superFields) {
+	// superField.setAccessible(true);
+	// // the key
+	// if (!superField.getType().equals(Map.class)) {
+	//
+	// superField.set(st, superKey);
+	//
+	// } else {
+	// // load columns: T
+	// HashMap<KeyType, T> columns = new HashMap<KeyType, T>();
+	//
+	// Field[] fields = t.getClass().getDeclaredFields();
+	// for (Field field : fields) {
+	// field.setAccessible(true);
+	//
+	// for (HSuperColumn<Object, String, byte[]> superCol : result) {
+	// List<HColumn<String, byte[]>> cols = superCol
+	// .getColumns();
+	//
+	//
+	// for (HColumn<String, byte[]> col : cols) {
+	// if (col == null || col.getValue() == null
+	// || col.getValueBytes().capacity() == 0) {
+	// // No data for this col
+	// continue;
+	// }
+	//
+	// // if(field.getName().equals("key")){
+	// // field.set(t, (KeyType)field);
+	// // }else{
+	// Object val = SerializerTypeInferer
+	// .getSerializer(field.getType())
+	// .fromBytes(col.getValue());
+	// field.set(t, val);
+	// // }
+	// columns.put((KeyType) superCol.getName(), t);
+	//
+	// }
+	// }
+	// }
+	//
+	//
+	// superField.set(st, columns);
+	//
+	//
+	// }
+	//
+	// }
+	//
+	// } catch (IllegalAccessException e) {
+	// throw new RuntimeException("Reflection Error ", e);
+	// }
+	// }
 
 	/**
 	 * Gets the field for property name.

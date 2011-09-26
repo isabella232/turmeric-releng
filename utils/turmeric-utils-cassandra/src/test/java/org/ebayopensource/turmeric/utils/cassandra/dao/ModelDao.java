@@ -13,26 +13,25 @@ import java.util.Set;
 
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface ModelDao.
  * @author jamuguerza
  */
-public interface ModelDao {
+public interface ModelDao<K> {
 	
 	/**
 	 * Save.
 	 *
 	 * @param testModel the test model
 	 */
-	public void save(Model testModel);
+	public void save(Model<?> testModel);
 
 	/**
 	 * Gets the all keys.
 	 *
 	 * @return the all keys
 	 */
-	public Set<String> getAllKeys();
+	public Set<K> getAllKeys();
 	
 	/**
 	 * Find.
@@ -40,14 +39,14 @@ public interface ModelDao {
 	 * @param key the key
 	 * @return the model
 	 */
-	public Model find(String key);
+	public Model<?> find(K key);
 
 	/**
 	 * Delete.
 	 *
 	 * @param testModel the test model
 	 */
-	public void delete(Model testModel);
+	public void delete(Model<?> testModel);
 	
 	/**
 	 * Contains key.
@@ -55,7 +54,7 @@ public interface ModelDao {
 	 * @param key the key
 	 * @return true, if successful
 	 */
-	public boolean containsKey(String key);
+	public boolean containsKey(K key);
 	
 
 	/**
@@ -66,5 +65,5 @@ public interface ModelDao {
 	 * @param rangeTo the range to
 	 * @return the sets the
 	 */
-	public Set<Model> findItems(final List<String> keys, final String rangeFrom, final String rangeTo ) ;
+	public Set<Model> findItems(final List<K> keys, final String rangeFrom, final String rangeTo ) ;
 }
