@@ -921,13 +921,20 @@
                                  <then>
                                     <echo message="Executing cobertura report" />
                                     <mkdir dir="${project.build.directory}/site/cobertura" />
-                                    <cobertura-report format="xml"
-                                       destdir="${project.build.directory}/site/cobertura"
-                                       datafile="${project.build.directory}/cobertura/cobertura.ser">
-                                       <fileset dir="${project.build.sourceDirectory}">
-                                          <include name="**/*.java" />
-                                       </fileset>
-                                    </cobertura-report>
+                                     <trycatch>
+                                       <try>
+                                          <cobertura-report format="xml"
+                                          destdir="${project.build.directory}/site/cobertura"
+                                          datafile="${project.build.directory}/cobertura/cobertura.ser">
+                                             <fileset dir="${project.build.sourceDirectory}">
+                                              <include name="**/*.java" />
+                                             </fileset>
+                                          </cobertura-report>
+                                       </try>
+                                       <catch>
+                                          <echo>No source directory found.</echo>
+                                       </catch>
+                                    </trycatch>
                                  </then>
                                  <else>
                                     <echo message="No SER file found." />
