@@ -10,6 +10,7 @@ package org.ebayopensource.turmeric.utils.cassandra.hector;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +23,7 @@ import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.HSuperColumn;
+import me.prettyprint.hector.api.ddl.ComparatorType;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.query.QueryResult;
 
@@ -437,5 +439,23 @@ public final class HectorHelper {
 	public static int getColumnCount(Class<?> entityClass) {
 		String[] columnNames = getAllColumnNames(entityClass);
 		return columnNames.length;
+	}
+
+	public static ComparatorType getComparator(Class<?> keyTypeClass) {
+		if (keyTypeClass != null && String.class.isAssignableFrom(keyTypeClass)) {
+			return ComparatorType.UTF8TYPE;
+		} else if (keyTypeClass != null
+				&& Integer.class.isAssignableFrom(keyTypeClass)) {
+			return ComparatorType.INTEGERTYPE;
+		} else if (keyTypeClass != null
+				&& Long.class.isAssignableFrom(keyTypeClass)) {
+			return ComparatorType.LONGTYPE;
+		} else if (keyTypeClass != null
+				&& Date.class.isAssignableFrom(keyTypeClass)) {
+			return ComparatorType.TIMEUUIDTYPE;
+		}  else {
+			return ComparatorType.BYTESTYPE; // by default
+		}
+
 	}
 }

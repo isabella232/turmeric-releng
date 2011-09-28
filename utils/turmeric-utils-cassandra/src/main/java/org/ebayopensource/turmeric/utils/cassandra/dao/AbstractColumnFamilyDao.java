@@ -79,7 +79,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 			final String s_keyspace, final Class<KeyType> keyTypeClass,
 			final Class<T> persistentClass, final String columnFamilyName) {
 		this.keySpace = new HectorManager().getKeyspace(clusterName, host,
-				s_keyspace, columnFamilyName, false);
+				s_keyspace, columnFamilyName, false, null,  keyTypeClass);
 		this.keyTypeClass = keyTypeClass;
 		this.persistentClass = persistentClass;
 		this.columnFamilyName = columnFamilyName;

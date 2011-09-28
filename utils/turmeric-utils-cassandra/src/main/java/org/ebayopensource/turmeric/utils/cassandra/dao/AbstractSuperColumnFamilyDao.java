@@ -101,7 +101,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 			final Class<KeyType> keyTypeClass, final Class<T> persistentClass,
 			final String columnFamilyName) {
 		this.keySpace = new HectorManager().getKeyspace(clusterName, host,
-				s_keyspace, columnFamilyName, true);
+				s_keyspace, columnFamilyName, true, superKeyTypeClass, keyTypeClass);
 
 		this.superKeyTypeClass = superKeyTypeClass;
 		this.keyTypeClass = keyTypeClass;

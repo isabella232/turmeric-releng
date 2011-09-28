@@ -28,6 +28,9 @@ import me.prettyprint.hector.api.factory.HFactory;
  * @author jamuguerza
  */
 public class HectorManager {
+	
+	public static ComparatorType LONGTYPE = ComparatorType.LONGTYPE;
+	
 
 	/**
 	 * Gets the or create cluster.
@@ -38,7 +41,7 @@ public class HectorManager {
 	 *            the host
 	 * @return the or create cluster
 	 */
-	public static Cluster getOrCreateCluster(final String clusterName,
+	private static Cluster getOrCreateCluster(final String clusterName,
 			final String host) {
 		return HFactory.getOrCreateCluster(clusterName, host);
 	}
@@ -57,20 +60,27 @@ public class HectorManager {
 	 * @return the keyspace
 	 */
 	public Keyspace getKeyspace(final String clusterName, final String host,
-			final String kspace, final String columnFamilyName, boolean isSuperColumn) {
-
+			final String kspace, final String columnFamilyName, boolean isSuperColumn, 
+			Class<?> superKeyTypeClass, Class<?> keyTypeClass){
+		
+	ComparatorType superKeyValidator = HectorHelper.getComparator(superKeyTypeClass);
+	ComparatorType keyValidator = HectorHelper.getComparator(keyTypeClass);
+	
+	ComparatorType superComparator = HectorHelper.getComparator(keyTypeClass);
+	ComparatorType comparator = HectorHelper.getComparator(String.class);
+		
 		Keyspace ks = null;
 
 		try {
 
-			ks = createKeyspace(clusterName, host, kspace, columnFamilyName, isSuperColumn);
+			ks = createKeyspace(clusterName, host, kspace, columnFamilyName, isSuperColumn, superKeyValidator, keyValidator, superComparator, comparator);
 
 		} catch (HInvalidRequestException e) {
 			// ignore it, it means keyspace already exists, but CF could not
 			if ("Keyspace already exists.".equalsIgnoreCase(e.getWhy())) {
 				try {
 
-					ks = createCF(clusterName, host, kspace, columnFamilyName, isSuperColumn);
+					ks = createKeyspaceRetry(clusterName, host, kspace, columnFamilyName, isSuperColumn,superKeyValidator, keyValidator, superComparator, comparator);
 
 				} catch (HInvalidRequestException e1) {
 					// ignore it, it means keyspace & CF already exist, get the
@@ -103,29 +113,45 @@ public class HectorManager {
 	 */
 	private Keyspace createKeyspace(final String clusterName,
 			final String host, final String kspace,
-			final String columnFamilyName, boolean isSuperColumn) {
+			final String columnFamilyName, boolean isSuperColumn, 
+			final ComparatorType superKeyValidator, final ComparatorType keyValidator,
+			final ComparatorType superComparator, final ComparatorType comparator) {
 		Cluster cluster = getOrCreateCluster(clusterName, host);
 
 		KeyspaceDefinition ksDefinition = new ThriftKsDef(kspace);
 		Keyspace keyspace = HFactory.createKeyspace(kspace, cluster);
 		cluster.addKeyspace(ksDefinition);
 	
-		createCF(kspace, columnFamilyName, cluster, isSuperColumn);
+		createCF(kspace, columnFamilyName, cluster, isSuperColumn, superKeyValidator, keyValidator, superComparator, comparator);
 		return keyspace;
 	}
 
 	private void createCF(final String kspace, final String columnFamilyName,
-			final Cluster cluster, boolean isSuperColumn) {
+			final Cluster cluster, boolean isSuperColumn, final ComparatorType superKeyValidator,
+			final ComparatorType keyValidator, 	final ComparatorType superComparator,
+			final ComparatorType comparator) {
 		
 		if(isSuperColumn){
-			ThriftCfDef cfDefinition = (ThriftCfDef)HFactory.createColumnFamilyDefinition(kspace, columnFamilyName, ComparatorType.UTF8TYPE, new ArrayList<ColumnDefinition>() );
-			  cfDefinition.setColumnType( ColumnType.SUPER);
-			  cfDefinition.setSubComparatorType( ComparatorType.UTF8TYPE );
-			  cluster.addColumnFamily( cfDefinition );
+			ThriftCfDef cfDefinition = (ThriftCfDef)HFactory.createColumnFamilyDefinition(kspace, columnFamilyName, superComparator, new ArrayList<ColumnDefinition>() );
+			cfDefinition.setColumnType( ColumnType.SUPER);
+			cfDefinition.setKeyValidationClass(superKeyValidator.getClassName());
+			cfDefinition.setSubComparatorType(comparator);
+			cluster.addColumnFamily( cfDefinition );
 		}else{
-			ColumnFamilyDefinition familyDefinition = new ThriftCfDef(kspace,
+			ColumnFamilyDefinition cfDefinition = new ThriftCfDef(kspace,
 					columnFamilyName);
-			cluster.addColumnFamily(familyDefinition);
+			cfDefinition.setKeyValidationClass(keyValidator.getClassName());
+			if("MetricValuesByIpAndDate".equals(columnFamilyName) ||
+					"MetricTimeSeries".equals(columnFamilyName) ||
+					"ServiceCallsByTime".equals(columnFamilyName) ){
+				
+				ComparatorType  comparator1 = HectorHelper.getComparator(Long.class);
+				cfDefinition.setComparatorType(comparator1);
+			}else{
+				cfDefinition.setComparatorType(comparator);	
+			}
+			
+			cluster.addColumnFamily(cfDefinition);
 		}
 	}
 
@@ -142,12 +168,14 @@ public class HectorManager {
 	 *            the column family name
 	 * @return the keyspace
 	 */
-	private Keyspace createCF(final String clusterName, final String host,
-			final String kspace, final String columnFamilyName, boolean isSuperColumn) {
+	private Keyspace createKeyspaceRetry(final String clusterName, final String host,
+			final String kspace, final String columnFamilyName, boolean isSuperColumn, 
+			final ComparatorType superKeyValidator, final ComparatorType keyValidator,
+			final ComparatorType superComparator,  final ComparatorType comparator) {
 
 		Cluster cluster = getOrCreateCluster(clusterName, host);
 
-		createCF(kspace, columnFamilyName, cluster, isSuperColumn);
+		createCF(kspace, columnFamilyName, cluster, isSuperColumn, superKeyValidator, keyValidator, superComparator, comparator);
 		
 		Keyspace keyspace = HFactory.createKeyspace(kspace,
 				getOrCreateCluster(clusterName, host));
