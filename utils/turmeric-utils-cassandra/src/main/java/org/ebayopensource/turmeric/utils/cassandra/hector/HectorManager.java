@@ -143,7 +143,9 @@ public class HectorManager {
 			cfDefinition.setKeyValidationClass(keyValidator.getClassName());
 			if("MetricValuesByIpAndDate".equals(columnFamilyName) ||
 					"MetricTimeSeries".equals(columnFamilyName) ||
-					"ServiceCallsByTime".equals(columnFamilyName) ){
+					"ServiceCallsByTime".equals(columnFamilyName) ||
+					"ErrorCountsByCategory".equals(columnFamilyName) ||
+					"ErrorCountsBySeverity".equals(columnFamilyName )){
 				
 				ComparatorType  comparator1 = HectorHelper.getComparator(Long.class);
 				cfDefinition.setComparatorType(comparator1);

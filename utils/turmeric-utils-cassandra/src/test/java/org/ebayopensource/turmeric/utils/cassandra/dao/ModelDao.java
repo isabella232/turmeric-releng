@@ -24,14 +24,14 @@ public interface ModelDao<K> {
 	 *
 	 * @param testModel the test model
 	 */
-	public void save(Model<?> testModel);
+	void save(Model<?> testModel);
 
 	/**
 	 * Gets the all keys.
 	 *
 	 * @return the all keys
 	 */
-	public Set<K> getAllKeys();
+	Set<K> getAllKeys();
 	
 	/**
 	 * Find.
@@ -39,14 +39,14 @@ public interface ModelDao<K> {
 	 * @param key the key
 	 * @return the model
 	 */
-	public Model<?> find(K key);
+	Model<?> find(K key);
 
 	/**
 	 * Delete.
 	 *
 	 * @param testModel the test model
 	 */
-	public void delete(Model<?> testModel);
+	void delete(Model<?> testModel);
 	
 	/**
 	 * Contains key.
@@ -54,7 +54,7 @@ public interface ModelDao<K> {
 	 * @param key the key
 	 * @return true, if successful
 	 */
-	public boolean containsKey(K key);
+	boolean containsKey(K key);
 	
 
 	/**
@@ -65,5 +65,5 @@ public interface ModelDao<K> {
 	 * @param rangeTo the range to
 	 * @return the sets the
 	 */
-	public Set<Model> findItems(final List<K> keys, final String rangeFrom, final String rangeTo ) ;
+	Set<Model> findItems(final List<K> keys, final String rangeFrom, final String rangeTo ) ;
 }

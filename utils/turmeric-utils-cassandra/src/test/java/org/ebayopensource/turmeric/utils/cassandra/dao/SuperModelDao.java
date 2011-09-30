@@ -25,7 +25,7 @@ public interface SuperModelDao<SK, K> {
 	 *
 	 * @param testSuperModel the test model
 	 */
-	public void save(SuperModel<?, ?> testSuperModel);
+	void save(SuperModel<?, ?> testSuperModel);
 
 
 	/**
@@ -35,14 +35,14 @@ public interface SuperModelDao<SK, K> {
 	 * @param columnNames the column names
 	 * @return the model
 	 */
-	public SuperModel<?, ?>  find(SK key, K [] columnNames );
+	SuperModel<?, ?>  find(SK key, K [] columnNames );
 
 	/**
 	 * Delete.
 	 *
 	 * @param testSuperModel the test super model
 	 */
-	public void delete(SuperModel<?, ?> testSuperModel);
+	void delete(SuperModel<?, ?> testSuperModel);
 	
 	/**
 	 * Contains key.
@@ -50,7 +50,7 @@ public interface SuperModelDao<SK, K> {
 	 * @param key the key
 	 * @return true, if successful
 	 */
-	public boolean containsKey(SK key);
+	boolean containsKey(SK key);
 	
 
 	/**
@@ -58,7 +58,7 @@ public interface SuperModelDao<SK, K> {
 	 *
 	 * @return the all keys
 	 */
-	public Set<SK> getAllKeys();
+	Set<SK> getAllKeys();
 	
 	/**
 	 * Find items.
@@ -67,5 +67,5 @@ public interface SuperModelDao<SK, K> {
 	 * @param columnNames the column names
 	 * @return the sets the
 	 */
-	public  Map<SK, SuperModel> findItems(final List<SK> superKeys, final K [] columnNames );
+	 Map<SK, SuperModel> findItems(final List<SK> superKeys, final K [] columnNames );
 }

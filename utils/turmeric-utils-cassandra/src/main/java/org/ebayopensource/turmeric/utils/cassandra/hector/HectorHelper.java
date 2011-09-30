@@ -132,52 +132,6 @@ public final class HectorHelper {
 		}
 	}
 
-	/**
-	 * Gets the columns.
-	 * 
-	 * @param <ST>
-	 *            the generic type
-	 * @param <T>
-	 * @param entity
-	 *            the entity
-	 * @return the columns
-	 */
-	// public static <ST, T> List<HSuperColumn<String, String, ?>>
-	// getSuperColumns(
-	// ST superEntity, Set<T> entityList) {
-	// try {
-	// List<HSuperColumn<String, String, ?>> superColumns = new
-	// ArrayList<HSuperColumn<String, String, ?>>();
-	// Field[] fields = superEntity.getClass().getDeclaredFields();
-	// for (Field field : fields) {
-	// field.setAccessible(true);
-	// Object value = field.get(superEntity);
-	//
-	// if (value == null) {
-	// // Field has no value so nothing to store
-	// continue;
-	// }
-	// String superName = field.getName();
-	//
-	// for (T entity : entityList) {
-	// List<HColumn<String, Object>> columns = getObjectColumns(entity);
-	//
-	// HSuperColumn<String, String, Object> superColumn = HFactory
-	// .createSuperColumn(superName, columns,
-	// StringSerializer.get(),
-	// StringSerializer.get(),
-	// ObjectSerializer.get());
-	//
-	// superColumns.add(superColumn);
-	// }
-	//
-	// }
-	//
-	// return superColumns;
-	// } catch (Exception e) {
-	// throw new RuntimeException("Reflection exception", e);
-	// }
-	// }
 
 	/**
 	 * Gets the string cols.
@@ -307,67 +261,6 @@ public final class HectorHelper {
 			throw new RuntimeException("Reflection Error ", e);
 		}
 	}
-
-	// public static <ST, T, SKeyType, KeyType> void populateSuperEntity(ST st,
-	// T t,
-	// SKeyType superKey, List<HSuperColumn<Object, String, byte[]>> result) {
-	// try {
-	// // load key for ST
-	// // Assumes a Map for columns and 1 other field for key
-	// Field[] superFields = st.getClass().getDeclaredFields();
-	// for (Field superField : superFields) {
-	// superField.setAccessible(true);
-	// // the key
-	// if (!superField.getType().equals(Map.class)) {
-	//
-	// superField.set(st, superKey);
-	//
-	// } else {
-	// // load columns: T
-	// HashMap<KeyType, T> columns = new HashMap<KeyType, T>();
-	//
-	// Field[] fields = t.getClass().getDeclaredFields();
-	// for (Field field : fields) {
-	// field.setAccessible(true);
-	//
-	// for (HSuperColumn<Object, String, byte[]> superCol : result) {
-	// List<HColumn<String, byte[]>> cols = superCol
-	// .getColumns();
-	//
-	//
-	// for (HColumn<String, byte[]> col : cols) {
-	// if (col == null || col.getValue() == null
-	// || col.getValueBytes().capacity() == 0) {
-	// // No data for this col
-	// continue;
-	// }
-	//
-	// // if(field.getName().equals("key")){
-	// // field.set(t, (KeyType)field);
-	// // }else{
-	// Object val = SerializerTypeInferer
-	// .getSerializer(field.getType())
-	// .fromBytes(col.getValue());
-	// field.set(t, val);
-	// // }
-	// columns.put((KeyType) superCol.getName(), t);
-	//
-	// }
-	// }
-	// }
-	//
-	//
-	// superField.set(st, columns);
-	//
-	//
-	// }
-	//
-	// }
-	//
-	// } catch (IllegalAccessException e) {
-	// throw new RuntimeException("Reflection Error ", e);
-	// }
-	// }
 
 	/**
 	 * Gets the field for property name.
