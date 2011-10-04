@@ -9,11 +9,14 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
+import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.SerializerTypeInferer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.hector.api.Keyspace;
@@ -120,8 +123,10 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
 		QueryResult<ColumnSlice<String, byte[]>> result = query
 				.setColumnFamily(columnFamilyName).setKey(key)
-				.setColumnNames(allColumnNames).execute();
-
+//				.setColumnNames(allColumnNames).execute();
+		
+			.setRange("", "", false,10).execute();
+		
 		try { 
 			if(result.get().getColumns().isEmpty()){
 				return null;	
@@ -228,6 +233,47 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 		for (Row<Object, String, byte[]> row : result.get()) {
 			if (!row.getColumnSlice().getColumns().isEmpty()) {
 				items.add((T) row.getColumnSlice());
+			}
+		}
+
+		return items;
+	}
+	
+	/**
+	 * Find items.
+	 *
+	 * @param keys the keys
+	 * @param rangeFrom the range from
+	 * @param rangeTo the range to
+	 * @return the sets the
+	 */
+	public Map<KeyType, Map<Long, String>> findItems(final List<KeyType> keys, final Long rangeFrom, final Long rangeTo ) {
+
+		Map<KeyType, Map<Long, String>> items = new HashMap<KeyType, Map<Long, String>>();
+
+		MultigetSliceQuery<Object, Long, byte[]> multigetSliceQuery = HFactory
+				.createMultigetSliceQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						LongSerializer.get(), BytesArraySerializer.get());
+
+		multigetSliceQuery.setColumnFamily(columnFamilyName);
+		multigetSliceQuery.setKeys(keys.toArray());
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false ,50);
+
+		QueryResult<Rows<Object, Long, byte[]>> result = multigetSliceQuery
+				.execute();
+
+		for (Row<Object, Long, byte[]> row : result.get()) {
+			if (!row.getColumnSlice().getColumns().isEmpty()) {
+				HashMap<Long, String> columnHashMap = new HashMap<Long, String>();
+
+				ColumnSlice<Long, byte[]> col = row.getColumnSlice();
+				List<HColumn<Long, byte[]>> columns = col.getColumns();
+				for (HColumn<Long, byte[]> hColumn : columns) {
+					columnHashMap.put(hColumn.getName(), hColumn.getValue().toString());
+				}
+
+				items.put((KeyType) row.getKey(), columnHashMap);
 			}
 		}
 
