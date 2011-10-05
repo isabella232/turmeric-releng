@@ -137,8 +137,13 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
 		try {
 			Constructor<?>[] constructorsT = persistentClass.getConstructors();
-			T t = (T) constructorsT[0].newInstance(keyTypeClass);
-
+			T t = null;
+			if(constructorsT.length > 1 || constructorsT[0].getParameterTypes().length > 0){
+				t = (T) constructorsT[0].newInstance(keyTypeClass);	
+			}else{
+				t = (T) constructorsT[0].newInstance();
+			}
+						
 			HectorHelper.populateEntity(t, key,result);
 			return t;
 		} catch (Exception e) {
