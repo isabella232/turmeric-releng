@@ -31,6 +31,16 @@ public interface SuperModelDao<SK, K> {
 	/**
 	 * Find.
 	 *
+	 * @param fromSCNmame the from sc nmame
+	 * @param toSCNmame the to sc nmame
+	 * @return the super model
+	 */
+	 List<?> findByRange(K fromSCNmame, K toSCNmame);
+
+	
+	/**
+	 * Find.
+	 *
 	 * @param key the key
 	 * @param columnNames the column names
 	 * @return the model

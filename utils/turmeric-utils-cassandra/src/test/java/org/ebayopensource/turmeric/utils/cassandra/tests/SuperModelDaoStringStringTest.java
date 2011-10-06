@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -144,6 +145,55 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 	}
 
 	@Test
+	public void testFindByColumnRange() {
+		List<SuperModel> superModelList = new ArrayList<SuperModel>();
+		SuperModel testSuperModel = createSuperModel();
+		SuperModel testSuperModel1 = createSuperModel_1();
+		SuperModel testSuperModel2 = createSuperModel_2();
+
+		// save
+		testSuperModelDao.save(testSuperModel);
+		testSuperModelDao.save(testSuperModel1);
+		testSuperModelDao.save(testSuperModel2);
+		
+		// find
+		superModelList = testSuperModelDao.findByRange( "key_aaa01model1", "key_aaa01model2");
+		assertNotNull(superModelList);
+		assertEquals(3, superModelList.size());
+		assertEquals(2, superModelList.get(0).getColumns().size());
+		assertEquals(1, superModelList.get(1).getColumns().size());
+		assertEquals(1, superModelList.get(2).getColumns().size());
+		
+		assertTrue(superModelList.get(0).getColumns().containsKey("key_aaa01model1"));
+		assertTrue(superModelList.get(0).getColumns().containsKey("key_aaa01model2"));
+		assertFalse(superModelList.get(0).getColumns().containsKey("key_aaa01model3"));
+		
+		assertFalse(superModelList.get(1).getColumns().containsKey("key_aaa01model1"));
+		assertTrue(superModelList.get(1).getColumns().containsKey("key_aaa01model2"));
+		assertFalse(superModelList.get(1).getColumns().containsKey("key_aaa01model3"));
+		
+		assertTrue(superModelList.get(2).getColumns().containsKey("key_aaa01model1"));
+		assertFalse(superModelList.get(2).getColumns().containsKey("key_aaa01model2"));
+		assertFalse(superModelList.get(2).getColumns().containsKey("key_aaa01model3"));
+		
+		
+		// find2
+		superModelList = testSuperModelDao.findByRange( "key_aaa01model4", "key_aaa01model5");
+		assertNotNull(superModelList);
+		assertEquals(2, superModelList.size());
+		assertEquals(1, superModelList.get(0).getColumns().size());
+		assertEquals(2, superModelList.get(1).getColumns().size());
+		
+		
+		assertTrue(superModelList.get(0).getColumns().containsKey("key_aaa01model4"));
+		assertFalse(superModelList.get(0).getColumns().containsKey("key_aaa01model5"));
+		
+		assertTrue(superModelList.get(1).getColumns().containsKey("key_aaa01model4"));
+		assertTrue(superModelList.get(1).getColumns().containsKey("key_aaa01model5"));
+					
+	}
+	
+	@Test
 	public void testDelete() {
 		SuperModel testSuperModel = createSuperModel();
 		testSuperModel.setKey(SUPER_KEY);
@@ -233,6 +283,52 @@ public class SuperModelDaoStringStringTest extends BaseTest {
 
 		return testSuperModel;
 	}
+	
+	private SuperModel createSuperModel_1() {
+		SuperModel testSuperModel = new SuperModel("", "" );
+		
+		Model model1 = createModel();
+		model1.setKey(model1.getKey()  + "model2");
+		Model model2 = createModel();
+		model2.setKey(model2.getKey() + "model3");
+		Model model3 = createModel();
+		model3.setKey(model3.getKey()  + "model4");
+		
+		HashMap<String, Model> columns = new HashMap<String, Model>();
+		columns.put((String)model1.getKey(), model1);
+		columns.put((String)model2.getKey(), model2);
+		columns.put((String)model3.getKey(), model3);
+		
+		testSuperModel.setKey(SUPER_KEY + 1);
+		testSuperModel.setColumns(columns);
+
+		return testSuperModel;
+	}
+	
+	private SuperModel createSuperModel_2() {
+		SuperModel testSuperModel = new SuperModel("", "" );
+		
+		Model model1 = createModel();
+		model1.setKey(model1.getKey()  + "model5");
+		Model model2 = createModel();
+		model2.setKey(model2.getKey() + "model6");
+		Model model3 = createModel();
+		model3.setKey(model3.getKey()  + "model1");
+		Model model4 = createModel();
+		model4.setKey(model4.getKey()  + "model4");
+		
+		HashMap<String, Model> columns = new HashMap<String, Model>();
+		columns.put((String)model1.getKey(), model1);
+		columns.put((String)model2.getKey(), model2);
+		columns.put((String)model3.getKey(), model3);
+		columns.put((String)model4.getKey(), model4);
+		
+		testSuperModel.setKey(SUPER_KEY + 2 );
+		testSuperModel.setColumns(columns);
+
+		return testSuperModel;
+	} 
+	
 	
 	private Model createModel() {
 		Model testModel = new Model("");

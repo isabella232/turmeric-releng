@@ -9,6 +9,7 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hector.api.mutation.Mutator;
 import me.prettyprint.hector.api.query.MultigetSuperSliceQuery;
 import me.prettyprint.hector.api.query.QueryResult;
+import me.prettyprint.hector.api.query.RangeSlicesQuery;
 import me.prettyprint.hector.api.query.RangeSuperSlicesQuery;
 import me.prettyprint.hector.api.query.SuperColumnQuery;
 import me.prettyprint.hector.api.query.SuperSliceQuery;
@@ -170,6 +172,54 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 
 	/**
 	 * Find.
+	 *
+	 * @param fromSName the from s name
+	 * @param toSName the to s name
+	 * @return the sT
+	 */
+	public List<ST> findByRange(final KeyType fromSName, final KeyType toSName) {
+		List<ST> stList = new ArrayList<ST>();
+
+		List<HSuperColumn<Object, String, byte[]>> superColumns = null;
+
+		RangeSuperSlicesQuery<Object, Object, String, byte[]> superColumnQuery = HFactory.createRangeSuperSlicesQuery(
+				keySpace, SerializerTypeInferer.getSerializer(superKeyTypeClass),
+				SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
+		superColumnQuery.setColumnFamily(columnFamilyName).setKeys("", "");
+		superColumnQuery.setRange(fromSName, toSName, false, 50);
+
+		QueryResult<OrderedSuperRows<Object, Object, String, byte[]>> result = superColumnQuery.execute();
+		for (SuperRow<Object, Object, String, byte[]> superRow : result.get()) {
+			SKeyType superKey = (SKeyType) superRow.getKey();
+
+			try {
+				superColumns = superRow.getSuperSlice().getSuperColumns();
+
+				if (superColumns.isEmpty()) {
+					continue;
+				}
+			} catch (Exception e) {
+				continue;
+			}
+
+			try {
+				Constructor<?>[] constructorsST = superPersistentClass.getConstructors();
+				ST st = (ST) constructorsST[0].newInstance(superKeyTypeClass, keyTypeClass);
+
+				Constructor<?>[] constructorsT = persistentClass.getConstructors();
+				T t = (T) constructorsT[0].newInstance(keyTypeClass);
+
+				HectorHelper.populateSuperEntity(st, t, superKey, keyTypeClass, superColumns);
+				stList.add(st);
+			} catch (Exception e) {
+				throw new RuntimeException("Error creating persistent class", e);
+			}
+		}
+		return stList;
+	}
+	
+	/**
+	 * Find.
 	 * 
 	 * @param superKey
 	 *            the super key
@@ -220,6 +270,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 		}
 	}
 
+	
 	/**
 	 * Find super items.
 	 * 

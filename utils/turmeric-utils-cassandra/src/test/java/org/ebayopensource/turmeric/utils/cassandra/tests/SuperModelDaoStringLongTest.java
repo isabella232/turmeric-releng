@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -144,6 +145,55 @@ public class SuperModelDaoStringLongTest extends BaseTest {
 	}
 
 	@Test
+	public void testFindByColumnRange() {
+		List<SuperModel> superModelList = new ArrayList<SuperModel>();
+		SuperModel testSuperModel = createSuperModel();
+		SuperModel testSuperModel1 = createSuperModel_1();
+		SuperModel testSuperModel2 = createSuperModel_2();
+
+		// save
+		testSuperModelDao.save(testSuperModel);
+		testSuperModelDao.save(testSuperModel1);
+		testSuperModelDao.save(testSuperModel2);
+		
+		// find
+		superModelList = testSuperModelDao.findByRange( 100L, 101L);
+		assertNotNull(superModelList);
+		assertEquals(3, superModelList.size());
+		assertEquals(2, superModelList.get(0).getColumns().size());
+		assertEquals(1, superModelList.get(1).getColumns().size());
+		assertEquals(1, superModelList.get(2).getColumns().size());
+		
+		assertTrue(superModelList.get(0).getColumns().containsKey(100L));
+		assertTrue(superModelList.get(0).getColumns().containsKey(101L));
+		assertFalse(superModelList.get(0).getColumns().containsKey(102L));
+		
+		assertFalse(superModelList.get(1).getColumns().containsKey(100L));
+		assertTrue(superModelList.get(1).getColumns().containsKey(101L));
+		assertFalse(superModelList.get(1).getColumns().containsKey(102L));
+		
+		assertTrue(superModelList.get(2).getColumns().containsKey(100L));
+		assertFalse(superModelList.get(2).getColumns().containsKey(101L));
+		assertFalse(superModelList.get(2).getColumns().containsKey(102L));
+		
+		
+		// find2
+		superModelList = testSuperModelDao.findByRange( 103L, 104L);
+		assertNotNull(superModelList);
+		assertEquals(2, superModelList.size());
+		assertEquals(1, superModelList.get(0).getColumns().size());
+		assertEquals(2, superModelList.get(1).getColumns().size());
+		
+		
+		assertTrue(superModelList.get(0).getColumns().containsKey(103L));
+		assertFalse(superModelList.get(0).getColumns().containsKey(104L));
+		
+		assertTrue(superModelList.get(1).getColumns().containsKey(103L));
+		assertTrue(superModelList.get(1).getColumns().containsKey(104L));
+					
+	}
+	
+	@Test
 	public void testDelete() {
 		SuperModel testSuperModel = createSuperModel();
 		testSuperModel.setKey(SUPER_KEY);
@@ -229,6 +279,51 @@ public class SuperModelDaoStringLongTest extends BaseTest {
 		columns.put((Long)model3.getKey(), model3);
 		
 		testSuperModel.setKey(SUPER_KEY);
+		testSuperModel.setColumns(columns);
+
+		return testSuperModel;
+	}
+	
+	private SuperModel createSuperModel_1() {
+		SuperModel testSuperModel = new SuperModel("", 1L );
+		
+		Model model1 = createModel();
+		model1.setKey(101L);
+		Model model2 = createModel();
+		model2.setKey(102L);
+		Model model3 = createModel();
+		model3.setKey(103L);
+		
+		HashMap<Long, Model> columns = new HashMap<Long, Model>();
+		columns.put((Long)model1.getKey(), model1);
+		columns.put((Long)model2.getKey(), model2);
+		columns.put((Long)model3.getKey(), model3);
+		
+		testSuperModel.setKey(SUPER_KEY + 1L);
+		testSuperModel.setColumns(columns);
+
+		return testSuperModel;
+	}
+	
+	private SuperModel createSuperModel_2() {
+		SuperModel testSuperModel = new SuperModel("", 2L );
+		
+		Model model1 = createModel();
+		model1.setKey(104L);
+		Model model2 = createModel();
+		model2.setKey(105L);
+		Model model3 = createModel();
+		model3.setKey(100L);
+		Model model4 = createModel();
+		model4.setKey(103L);
+		
+		HashMap<Long, Model> columns = new HashMap<Long, Model>();
+		columns.put((Long)model1.getKey(), model1);
+		columns.put((Long)model2.getKey(), model2);
+		columns.put((Long)model3.getKey(), model3);
+		columns.put((Long)model4.getKey(), model4);
+		
+		testSuperModel.setKey(SUPER_KEY + 2L);
 		testSuperModel.setColumns(columns);
 
 		return testSuperModel;

@@ -80,12 +80,9 @@ public class SuperModelDaoImpl<SK, K> extends
 	}
 
 	
-
-
-
-	
-
-
+//	public List<SuperModel>  find(K fromSCNmame, K toSCNmame){
+//		return super.find(fromSCNmame, toSCNmame);
+//	}
 
 
 }
