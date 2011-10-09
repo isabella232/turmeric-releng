@@ -48,10 +48,10 @@ import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
 public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
    /** The persistent class. */
-   private final Class<T> persistentClass;
+   protected final Class<T> persistentClass;
 
    /** The key type class. */
-   private final Class<KeyType> keyTypeClass;
+   protected final Class<KeyType> keyTypeClass;
 
    /** The key space. */
    protected final Keyspace keySpace;
@@ -60,7 +60,7 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
    protected final String columnFamilyName;
 
    /** The all column names. */
-   private final String[] allColumnNames;
+   protected final String[] allColumnNames;
 
    /**
     * Instantiates a new abstract column family dao.

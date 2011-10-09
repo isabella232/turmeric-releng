@@ -171,7 +171,7 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
       RangeSuperSlicesQuery<Object, Object, String, byte[]> superColumnQuery = HFactory.createRangeSuperSlicesQuery(
                keySpace, SerializerTypeInferer.getSerializer(superKeyTypeClass),
                SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
-      superColumnQuery.setColumnFamily(columnFamilyName).setKeys("", "");
+      superColumnQuery.setColumnFamily(columnFamilyName).setKeys(null, null);
       superColumnQuery.setRange(fromSName, toSName, false, 50);
 
       QueryResult<OrderedSuperRows<Object, Object, String, byte[]>> result = superColumnQuery.execute();
