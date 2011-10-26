@@ -10,6 +10,7 @@ package org.ebayopensource.turmeric.utils.cassandra.hector;
 
 import java.util.ArrayList;
 
+import me.prettyprint.cassandra.service.CassandraHostConfigurator;
 import me.prettyprint.cassandra.service.FailoverPolicy;
 import me.prettyprint.cassandra.service.ThriftCfDef;
 import me.prettyprint.cassandra.service.ThriftKsDef;
@@ -46,7 +47,9 @@ public class HectorManager {
     * @return the or create cluster
     */
    private static Cluster getOrCreateCluster(final String clusterName, final String host) {
-      return HFactory.getOrCreateCluster(clusterName, host);
+      CassandraHostConfigurator hostConfig = new CassandraHostConfigurator(host);
+      hostConfig.setAutoDiscoverHosts(true);
+      return HFactory.getOrCreateCluster(clusterName, hostConfig);
    }
 
    /**
