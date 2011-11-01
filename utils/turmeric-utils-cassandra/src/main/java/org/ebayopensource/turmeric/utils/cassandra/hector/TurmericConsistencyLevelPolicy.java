@@ -12,9 +12,9 @@ public class TurmericConsistencyLevelPolicy implements ConsistencyLevelPolicy {
          case READ:
             return HConsistencyLevel.QUORUM;
          case WRITE:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
       }
-      return HConsistencyLevel.ONE;
+      return HConsistencyLevel.QUORUM;
    }
 
    @Override
@@ -23,9 +23,9 @@ public class TurmericConsistencyLevelPolicy implements ConsistencyLevelPolicy {
          case READ:
             return HConsistencyLevel.QUORUM;
          case WRITE:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
       }
-      return HConsistencyLevel.ONE;
+      return HConsistencyLevel.QUORUM;
    }
 
 }
