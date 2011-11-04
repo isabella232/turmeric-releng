@@ -10,22 +10,22 @@ public class TurmericConsistencyLevelPolicy implements ConsistencyLevelPolicy {
    public HConsistencyLevel get(OperationType op) {
       switch (op) {
          case READ:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
          case WRITE:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
       }
-      return HConsistencyLevel.ONE;
+      return HConsistencyLevel.QUORUM;
    }
 
    @Override
    public HConsistencyLevel get(OperationType op, String cfName) {
       switch (op) {
          case READ:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
          case WRITE:
-            return HConsistencyLevel.ONE;
+            return HConsistencyLevel.QUORUM;
       }
-      return HConsistencyLevel.ONE;
+      return HConsistencyLevel.QUORUM;
    }
 
 }

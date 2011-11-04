@@ -118,10 +118,11 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
       SliceQuery<Object, String, byte[]> query = HFactory.createSliceQuery(keySpace,
                SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
 
+      int columnQuerySize = 100;
       QueryResult<ColumnSlice<String, byte[]>> result = query.setColumnFamily(columnFamilyName).setKey(key)
       // .setColumnNames(allColumnNames).execute();
 
-               .setRange("", "", false, 10).execute();
+               .setRange("", "", false, columnQuerySize).execute();
 
       try {
          if (result.get().getColumns().isEmpty()) {
