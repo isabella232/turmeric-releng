@@ -22,12 +22,12 @@
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.intf</groupId>
 			<artifactId>SOAMetricsQueryService</artifactId>
-			<version>0.9.0-Beta-RC3</version>
+			<version>${turmeric-monitoring-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>SOAMetricsQueryServiceImpl</artifactId>
-			<version>0.9.0-Beta-RC3</version>
+			<version>${turmeric-monitoring-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -76,8 +76,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.monitoring</groupId>
-			<artifactId>turmeric-monitoring-provider</artifactId>
-			<version>0.9.0-Beta-RC3</version>
+			<artifactId>turmeric-monitoring-dao-provider</artifactId>
+			<version>${turmeric-monitoring-version}</version>
 		</dependency>
 	</dependencies>
 	<build>

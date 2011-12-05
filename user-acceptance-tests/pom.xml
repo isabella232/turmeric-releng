@@ -12,12 +12,12 @@
   <packaging>pom</packaging>
 
   <properties>
-     <turmeric-runtime-version>1.0.1.0-SNAPSHOT</turmeric-runtime-version>
-     <turmeric-monitoring-version>1.0.0.4-SNAPSHOT</turmeric-monitoring-version>
-     <turmeric-security-version>1.0.1.0-SNAPSHOT</turmeric-security-version>
-     <turmeric-policy-version>1.0.0.4-SNAPSHOT</turmeric-policy-version>
-     <turmeric-repository-version>1.0.0-Alpha-RC1</turmeric-repository-version>
-     <turmeric-ratelimiter-version>1.0.1.0-SNAPSHOT</turmeric-ratelimiter-version>
+     <turmeric-runtime-version>1.1.0</turmeric-runtime-version>
+     <turmeric-monitoring-version>1.0.0-Beta</turmeric-monitoring-version>
+     <turmeric-security-version>1.1.0-Beta</turmeric-security-version>
+     <turmeric-policy-version>1.0.0</turmeric-policy-version>
+     <turmeric-repository-version>1.0.0-Beta</turmeric-repository-version>
+     <turmeric-ratelimiter-version>1.1.0-Beta</turmeric-ratelimiter-version>
   </properties>
 
 

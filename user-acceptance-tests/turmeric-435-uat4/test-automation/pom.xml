@@ -1,14 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>turmeric-uat4-parent</artifactId>
-    <groupId>org.ebayopensource.turmeric.uat</groupId>
-    <version>1.0.0.2-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <groupId>org.ebayopensource.turmeric.uat</groupId>
-  <artifactId>turmeric-435-test-automation</artifactId>
-  <build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>turmeric-uat4-parent</artifactId>
+		<groupId>org.ebayopensource.turmeric.uat</groupId>
+		<version>1.0.0.2-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<groupId>org.ebayopensource.turmeric.uat</groupId>
+	<artifactId>turmeric-435-test-automation</artifactId>
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -99,7 +100,7 @@
 				<version>3.5.1</version>
 				<configuration>
 					<projectFile>${basedir}/src/test/resources/turmeric-435-soapui-tests.xml
-                    </projectFile>
+					</projectFile>
 					<testFailIgnore>true</testFailIgnore>
 					<junitReport>true</junitReport>
 					<outputFolder>target/surefire-reports</outputFolder>
@@ -167,13 +168,6 @@
 			<version>${turmeric-runtime-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ebayopensource.turmeric.impl</groupId>
-			<artifactId>TurmericRSV1Impl</artifactId>
-			<version>${turmeric-repository-version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.ebayopensource.turmeric.repository</groupId>
 			<artifactId>repository-service-wso2</artifactId>
 			<version>${turmeric-repository-version}</version>
@@ -195,14 +189,19 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.ebayopensource.turmeric.repository</groupId>
+			<artifactId>wso2-test-utils</artifactId>
+			<version>${turmeric-repository-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.ebayopensource.turmeric.intf</groupId>
-			<artifactId>TurmericRSV1</artifactId>
+			<artifactId>TurmericRSV2</artifactId>
 			<version>${turmeric-repository-version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
-			<artifactId>TurmericRSV1Impl</artifactId>
+			<artifactId>TurmericRSV2Impl</artifactId>
 			<version>${turmeric-repository-version}</version>
 		</dependency>
 		<dependency>
@@ -216,15 +215,20 @@
 			<artifactId>TurmericASV1Impl</artifactId>
 			<version>${turmeric-repository-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>mx4j</groupId>
+			<artifactId>mx4j</artifactId>
+			<version>3.0.2</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<jetty.port>8080</jetty.port>
 		<org.ebayopensource.turmeric.repository.wso2.url>https://localhost:9443/registry/
-        </org.ebayopensource.turmeric.repository.wso2.url>
+		</org.ebayopensource.turmeric.repository.wso2.url>
 		<org.ebayopensource.turmeric.repository.wso2.username>admin
-        </org.ebayopensource.turmeric.repository.wso2.username>
+		</org.ebayopensource.turmeric.repository.wso2.username>
 		<org.ebayopensource.turmeric.repository.wso2.password>admin
-        </org.ebayopensource.turmeric.repository.wso2.password>
+		</org.ebayopensource.turmeric.repository.wso2.password>
 		<javax.net.ssl.trustStore>${basedir}/src/test/resources/client-truststore.jks</javax.net.ssl.trustStore>
 		<javax.net.ssl.trustStorePassword>wso2carbon</javax.net.ssl.trustStorePassword>
 		<javax.net.ssl.trustStoreType>JKS</javax.net.ssl.trustStoreType>

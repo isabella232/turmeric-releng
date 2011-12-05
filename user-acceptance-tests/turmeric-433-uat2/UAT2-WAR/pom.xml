@@ -39,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.monitoring</groupId>
-			<artifactId>turmeric-monitoring-provider</artifactId>
+			<artifactId>turmeric-monitoring-dao-provider</artifactId>
 			<version>${turmeric-monitoring-version}</version>
 		</dependency>
 		<dependency>
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>GroupMembershipServiceImpl</artifactId>
-			<version>${turmeric-policy-version}</version>
+			<version>${turmeric-security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>

@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -13,29 +14,34 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.ebayopensource.turmeric.repository.wso2.RSProviderUtil;
+import org.ebayopensource.turmeric.repository.wso2.utils.AbstractCarbonIntegrationTestCase;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.wso2.carbon.registry.app.RemoteRegistry;
+import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 
-public class SetupTest {
+public class SetupTest extends AbstractCarbonIntegrationTestCase{
 
 	private final static String ASSERTIONS_PROJECT_DIR = "src/test/resources/";
-
-	@BeforeClass
-	public static void createRequiredAssetsInWso2() {
-//		cleanUpResources();
-		createLifecycleInfoInWso2();
-		createAssertionAssetsInfoInWso2();
+	
+	@Before
+	public void setUp(){
+		try {
+			super.setUp();
+			createLifecycleInfoInWso2();
+			createAssertionAssetsInfoInWso2();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void cleanUpResources() {
 		try {
-			RemoteRegistry _registry = new RemoteRegistry(
-					new URL(
-							System.getProperty("org.ebayopensource.turmeric.repository.wso2.url")),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.username"),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.password"));
+			Registry _registry = RSProviderUtil.getRegistry();
 
 			String serviceAssetKey = "/_system/governance/services/http/www/ebayopensource/org/turmeric/uat1/v1/services/HelloWorld";
 			String endpointAssetKey = "/_system/governance/endpoints/http/www/ebayopensource/org/turmeric/ep-HelloWorld";
@@ -55,11 +61,7 @@ public class SetupTest {
 
 	private static void createAssertionAssetsInfoInWso2() {
 		try {
-			RemoteRegistry _registry = new RemoteRegistry(
-					new URL(
-							System.getProperty("org.ebayopensource.turmeric.repository.wso2.url")),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.username"),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.password"));
+			Registry _registry = RSProviderUtil.getRegistry();
 			String assertionScriptKey = null;
 			String assertionName = null;
 			Collection<String> assertionFileNames = assertionsFiles();
@@ -138,11 +140,7 @@ public class SetupTest {
 
 	private static void createLifecycleInfoInWso2() {
 		try {
-			RemoteRegistry _registry = new RemoteRegistry(
-					new URL(
-							System.getProperty("org.ebayopensource.turmeric.repository.wso2.url")),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.username"),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.password"));
+			Registry _registry = RSProviderUtil.getRegistry();
 			String assetName = "TurmericLifeCycle";
 			String assetKey = "/_system/config/repository/components/org.wso2.carbon.governance/lifecycles/"
 					+ assetName;
@@ -179,11 +177,7 @@ public class SetupTest {
 	@Test
 	public void testRequiredAssetsLoadedInWso2() {
 		try {
-			RemoteRegistry _registry = new RemoteRegistry(
-					new URL(
-							System.getProperty("org.ebayopensource.turmeric.repository.wso2.url")),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.username"),
-					System.getProperty("org.ebayopensource.turmeric.repository.wso2.password"));
+			Registry _registry = RSProviderUtil.getRegistry();
 			String assetName = "TurmericLifeCycle";
 			String assetKey = "/_system/config/repository/components/org.wso2.carbon.governance/lifecycles/"
 					+ assetName;
@@ -227,6 +221,12 @@ public class SetupTest {
 	public static void main(String args[]) {
 		SetupTest test = new SetupTest();
 		test.assertionsFiles();
+	}
+
+	@Override
+	protected void copyArtifacts() throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
