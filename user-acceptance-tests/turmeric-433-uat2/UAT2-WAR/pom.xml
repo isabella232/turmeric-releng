@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>PolicyEnforcementServiceImpl</artifactId>
-			<version>${project.version}</version>
+			<version>${turmeric-security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
@@ -80,12 +80,12 @@
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>AuthenticationServiceImpl</artifactId>
-			<version>${project.version}</version>
+			<version>${turmeric-security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>AuthorizationServiceImpl</artifactId>
-			<version>${project.version}</version>
+			<version>${turmeric-security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.security</groupId>
 			<artifactId>turmeric-security-provider</artifactId>
-			<version>${project.version}</version>
+			<version>${turmeric-security-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jolbox</groupId>

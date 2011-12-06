@@ -60,13 +60,6 @@
 			<version>${turmeric-runtime-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ebayopensource.turmeric.impl</groupId>
-			<artifactId>TurmericRSV1Impl</artifactId>
-			<version>${turmeric-repository-version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.ebayopensource.turmeric.repository</groupId>
 			<artifactId>repository-service-wso2</artifactId>
 			<version>${turmeric-repository-version}</version>
@@ -89,13 +82,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.intf</groupId>
-			<artifactId>TurmericRSV1</artifactId>
+			<artifactId>TurmericRSV2</artifactId>
 			<version>${turmeric-repository-version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
-			<artifactId>TurmericRSV1Impl</artifactId>
+			<artifactId>TurmericRSV2Impl</artifactId>
 			<version>${turmeric-repository-version}</version>
 		</dependency>
 		<dependency>
