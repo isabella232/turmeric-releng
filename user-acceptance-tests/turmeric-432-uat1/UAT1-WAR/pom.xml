@@ -11,36 +11,6 @@
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.4.0.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ebayopensource.turmeric.impl</groupId>
-			<artifactId>SOAMetricsQueryServiceImpl</artifactId>
-			<version>${turmeric-monitoring-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ebayopensource.turmeric.runtime</groupId>
-			<artifactId>soa-client</artifactId>
-			<version>${turmeric-runtime-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ebayopensource.turmeric.runtime</groupId>
-			<artifactId>soa-server</artifactId>
-			<version>${turmeric-runtime-version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.ebayopensource.turmeric.intf</groupId>
 			<artifactId>UatHelloWorldV1</artifactId>
 			<version>${project.version}</version>
@@ -49,26 +19,6 @@
 			<groupId>org.ebayopensource.turmeric.impl</groupId>
 			<artifactId>UatHelloWorldV1Impl</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.13</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ebayopensource.turmeric.monitoring</groupId>
-			<artifactId>turmeric-monitoring-dao-provider</artifactId>
-			<version>${turmeric-monitoring-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.jolbox</groupId>
-			<artifactId>bonecp</artifactId>
-			<version>0.7.0</version>		
-		</dependency>
-		<dependency>
-			<groupId>com.jolbox</groupId>
-			<artifactId>bonecp-provider</artifactId>
-			<version>0.7.0</version>		
 		</dependency>
 	</dependencies>
 </project>
