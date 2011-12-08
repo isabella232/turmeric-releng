@@ -25,16 +25,31 @@
       <groupId>org.ebayopensource.turmeric.runtime</groupId>
       <artifactId>soa-client</artifactId>
       <version>${turmeric-runtime-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-xjc</artifactId>
-      <version>2.1.2</version>
+      <scope>provided</scope>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>activation</artifactId>
+      		<groupId>javax.activation</groupId>
+      	</exclusion>
+      	<exclusion>
+      		<artifactId>stax-api</artifactId>
+      		<groupId>javax.xml.stream</groupId>
+      	</exclusion>
+      	<exclusion>
+      		<artifactId>activation</artifactId>
+      		<groupId>javax.activation</groupId>
+      	</exclusion>
+      	<exclusion>
+      		<artifactId>jaxb-xjc</artifactId>
+      		<groupId>com.sun.xml.bind</groupId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.ebayopensource.turmeric.typelib</groupId>
       <artifactId>common-type-library</artifactId>
       <version>${turmeric-runtime-version}</version>
+      <scope>provided</scope>
       <type>pom</type>
     </dependency>
   </dependencies>

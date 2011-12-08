@@ -27,6 +27,7 @@
 			<groupId>org.ebayopensource.turmeric.runtime</groupId>
 			<artifactId>soa-client</artifactId>
 			<version>${turmeric-runtime-version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -38,18 +39,20 @@
 			<groupId>org.ebayopensource.turmeric.runtime</groupId>
 			<artifactId>soa-server</artifactId>
 			<version>${turmeric-runtime-version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
 			<artifactId>persistence-api</artifactId>
 			<version>1.0</version>
+			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.4.0.GA</version>
-			<scope>runtime</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hibernate</groupId> -->
+<!-- 			<artifactId>hibernate-entitymanager</artifactId> -->
+<!-- 			<version>3.4.0.GA</version> -->
+<!-- 			<scope>runtime</scope> -->
+<!-- 		</dependency> -->
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>

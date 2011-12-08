@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-             version="1.0">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+	version="1.0">
 
-    <persistence-unit name="uat-messageservice-v1" transaction-type="RESOURCE_LOCAL">
+ <persistence-unit name="uat-messageservice-v1" transaction-type="RESOURCE_LOCAL">
         <class>org.ebayopensource.turmeric.uat.v1.services.messageservice.model.Message</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -17,5 +17,5 @@
 			<property name="hibernate.hbm2ddl.auto" value="update" />
 		</properties>
     </persistence-unit>
-
+	
 </persistence>
