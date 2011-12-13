@@ -1,5 +1,12 @@
 Test environment:
 
+***********************************************************************************************************
+IMPORTANT NOTE: 
+
+Due to the recent changes to the repository service, this UAT is not going to work, because basic assertions support has not been coded in the new repsoitory service code.
+
+***********************************************************************************************************
+
 The test environment setup in the turmeric-435-uat4/test-automation folder runs the soap ui
 test project found here: turmeric-435-uat4/test-automation/src/test/resources/turmeric-435-soapui-tests.xml
 

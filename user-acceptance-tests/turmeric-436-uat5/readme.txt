@@ -1,5 +1,13 @@
 Test environment:
 
+***************************************************************************************************
+IMPORTANT NOTE:
+
+Due to the changes to the repository service, this UAT is not working, as lifecycle management has not been coded to the repository service yet.
+
+****************************************************************************************************
+
+
 For the test, you need to install:
 1.- maven 3.0
 2.- Wso2 Governance Registry. See this link to install wso2:
