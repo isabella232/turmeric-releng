@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<service-config name="CommonSOAServiceGroup" xmlns="http://www.ebayopensource.org/turmeric/common/config">
+<service-config name="CommonSOAServiceGroup" schema="META-INF/soa/schema/server/ServiceConfig.xsd">
     <service-impl-class-name>org.ebayopensource.turmeric.uat.v1.services.messageservice.impl.UatMessageServiceV1Impl</service-impl-class-name>
     <service-interface-class-name>org.ebayopensource.turmeric.uat.v1.services.messageservice.impl.UatMessageServiceV1</service-interface-class-name>
     <service-instance-config>
