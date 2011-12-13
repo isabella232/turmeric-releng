@@ -5,13 +5,12 @@
    <groupId>org.ebayopensource.turmeric</groupId>
    <artifactId>turmeric-project</artifactId>
    <name>Turmeric Project</name>
-   <version>1.1.0.5</version>
+   <version>1.1.0.7</version>
    <packaging>pom</packaging>
-   <url>http://www.ebayopensource.org</url>
+   <url>https://www.ebayopensource.org</url>
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <!-- Enable Maven Central version when patches applied on Axis Side <axis-groupId>org.apache.axis2</axis-groupId> 
-         <axis-version>1.4</axis-version> -->
+      <!-- Enable Maven Central version when patches applied on Axis Side <axis-groupId>org.apache.axis2</axis-groupId> <axis-version>1.4</axis-version> -->
       <!-- Use project-managed axis2 artifacts, as they contain important patches for us -->
       <axis-groupId>com.ebay.soa.externaljars</axis-groupId>
       <axis-version>1.0.0</axis-version>
@@ -74,8 +73,10 @@
             <artifactId>maven-release-plugin</artifactId>
             <version>2.2.1</version>
             <configuration>
+               <pushChanges>false</pushChanges>
                <autoVersionSubmodules>true</autoVersionSubmodules>
                <preparationGoals>clean install</preparationGoals>
+               <localCheckout>true</localCheckout>
             </configuration>
          </plugin>
       </plugins>
@@ -909,25 +910,20 @@
                         <phase>verify</phase>
                         <configuration>
                            <tasks>
-                              <taskdef classpathref="maven.runtime.classpath"
-                                 resource="tasks.properties" />
-                              <taskdef classpathref="maven.runtime.classpath"
-                                 resource="net/sf/antcontrib/antcontrib.properties" />
-                              <available
-                                 file="${project.build.directory}/cobertura/cobertura.ser"
-                                 property="ser.file.exists" />
+                              <taskdef classpathref="maven.runtime.classpath" resource="tasks.properties" />
+                              <taskdef classpathref="maven.runtime.classpath" resource="net/sf/antcontrib/antcontrib.properties" />
+                              <available file="${project.build.directory}/cobertura/cobertura.ser" property="ser.file.exists" />
                               <if>
                                  <equals arg1="${ser.file.exists}" arg2="true" />
                                  <then>
                                     <echo message="Executing cobertura report" />
                                     <mkdir dir="${project.build.directory}/site/cobertura" />
-                                     <trycatch>
+                                    <trycatch>
                                        <try>
                                           <cobertura-report format="xml"
-                                          destdir="${project.build.directory}/site/cobertura"
-                                          datafile="${project.build.directory}/cobertura/cobertura.ser">
+                                             destdir="${project.build.directory}/site/cobertura" datafile="${project.build.directory}/cobertura/cobertura.ser">
                                              <fileset dir="${project.build.sourceDirectory}">
-                                              <include name="**/*.java" />
+                                                <include name="**/*.java" />
                                              </fileset>
                                           </cobertura-report>
                                        </try>
