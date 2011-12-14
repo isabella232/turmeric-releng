@@ -9,6 +9,7 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,335 +42,403 @@ import org.ebayopensource.turmeric.utils.cassandra.hector.HectorManager;
  * 
  * @author jamuguerza
  * @param <KeyType>
- *           the generic type
+ *            the generic type
  * @param <T>
- *           the generic type
+ *            the generic type
  */
 public abstract class AbstractColumnFamilyDao<KeyType, T> {
 
-   /** The persistent class. */
-   protected final Class<T> persistentClass;
+	/** The persistent class. */
+	protected final Class<T> persistentClass;
 
-   /** The key type class. */
-   protected final Class<KeyType> keyTypeClass;
+	/** The key type class. */
+	protected final Class<KeyType> keyTypeClass;
 
-   /** The key space. */
-   protected final Keyspace keySpace;
+	/** The key space. */
+	protected final Keyspace keySpace;
 
-   /** The column family name. */
-   protected final String columnFamilyName;
+	/** The column family name. */
+	protected final String columnFamilyName;
 
-   /** The all column names. */
-   protected final String[] allColumnNames;
+	/** The all column names. */
+	protected final String[] allColumnNames;
 
-   /**
-    * Instantiates a new abstract column family dao.
-    * 
-    * @param clusterName
-    *           the clusterName
-    * @param host
-    *           the host
-    * @param s_keyspace
-    *           the s_keyspace
-    * @param keyTypeClass
-    *           the key type class
-    * @param persistentClass
-    *           the persistent class
-    * @param columnFamilyName
-    *           the column family name
-    */
-   public AbstractColumnFamilyDao(final String clusterName, final String host, final String s_keyspace,
-            final Class<KeyType> keyTypeClass, final Class<T> persistentClass, final String columnFamilyName) {
-      this.keySpace = new HectorManager().getKeyspace(clusterName, host, s_keyspace, columnFamilyName, false, null,
-               keyTypeClass);
-      this.keyTypeClass = keyTypeClass;
-      this.persistentClass = persistentClass;
-      this.columnFamilyName = columnFamilyName;
-      this.allColumnNames = HectorHelper.getAllColumnNames(persistentClass);
+	/**
+	 * Instantiates a new abstract column family dao.
+	 * 
+	 * @param clusterName
+	 *            the clusterName
+	 * @param host
+	 *            the host
+	 * @param s_keyspace
+	 *            the s_keyspace
+	 * @param keyTypeClass
+	 *            the key type class
+	 * @param persistentClass
+	 *            the persistent class
+	 * @param columnFamilyName
+	 *            the column family name
+	 */
+	public AbstractColumnFamilyDao(final String clusterName, final String host,
+			final String s_keyspace, final Class<KeyType> keyTypeClass,
+			final Class<T> persistentClass, final String columnFamilyName) {
+		this.keySpace = new HectorManager().getKeyspace(clusterName, host,
+				s_keyspace, columnFamilyName, false, null, keyTypeClass);
+		this.keyTypeClass = keyTypeClass;
+		this.persistentClass = persistentClass;
+		this.columnFamilyName = columnFamilyName;
+		this.allColumnNames = HectorHelper.getAllColumnNames(persistentClass);
 
-   }
+	}
 
-   /**
-    * Save.
-    * 
-    * @param key
-    *           the key
-    * @param model
-    *           the model
-    */
-   public void save(KeyType key, T model) {
+	/**
+	 * Save.
+	 * 
+	 * @param key
+	 *            the key
+	 * @param model
+	 *            the model
+	 */
+	public void save(KeyType key, T model) {
 
-      Mutator<Object> mutator = HFactory.createMutator(keySpace, SerializerTypeInferer.getSerializer(keyTypeClass));
-      for (HColumn<?, ?> column : HectorHelper.getColumns(model)) {
-         mutator.addInsertion(key, columnFamilyName, column);
-      }
+		Mutator<Object> mutator = HFactory.createMutator(keySpace,
+				SerializerTypeInferer.getSerializer(keyTypeClass));
+		for (HColumn<?, ?> column : HectorHelper.getColumns(model)) {
+			mutator.addInsertion(key, columnFamilyName, column);
+		}
 
-      mutator.execute();
-   }
+		mutator.execute();
+	}
 
-   /**
-    * Find.
-    * 
-    * @param key
-    *           the key
-    * @return the t
-    */
-   public T find(KeyType key) {
-      SliceQuery<Object, String, byte[]> query = HFactory.createSliceQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
+	/**
+	 * Find.
+	 * 
+	 * @param key
+	 *            the key
+	 * @return the t
+	 */
+	public T find(KeyType key) {
+		SliceQuery<Object, String, byte[]> query = HFactory.createSliceQuery(
+				keySpace, SerializerTypeInferer.getSerializer(keyTypeClass),
+				StringSerializer.get(), BytesArraySerializer.get());
 
-      int columnQuerySize = 100;
-      QueryResult<ColumnSlice<String, byte[]>> result = query.setColumnFamily(columnFamilyName).setKey(key)
-      // .setColumnNames(allColumnNames).execute();
+		int columnQuerySize = 100;
+		QueryResult<ColumnSlice<String, byte[]>> result = query
+				.setColumnFamily(columnFamilyName).setKey(key)
+				// .setColumnNames(allColumnNames).execute();
 
-               .setRange("", "", false, columnQuerySize).execute();
+				.setRange("", "", false, columnQuerySize).execute();
 
-      try {
-         if (result.get().getColumns().isEmpty()) {
-            return null;
-         }
-      } catch (Exception e) {
-         return null;
-      }
+		try {
+			if (result.get().getColumns().isEmpty()) {
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		}
 
-      try {
-         Constructor<?>[] constructorsT = persistentClass.getConstructors();
-         T t = null;
-         if (constructorsT.length > 1) {
-            if (constructorsT[0].getParameterTypes().length == 1
-                     && constructorsT[0].getParameterTypes()[0].isAssignableFrom(keyTypeClass)) {
-               t = (T) constructorsT[0].newInstance(keyTypeClass);
-            } else {
-               t = (T) constructorsT[0].newInstance();
-            }
-         } else {
-            if (constructorsT[0].getParameterTypes().length == 1
-                     && (constructorsT[0].getParameterTypes()[0].isAssignableFrom(keyTypeClass) || Object.class
-                              .equals(constructorsT[0].getParameterTypes()[0]))) {
-               t = (T) constructorsT[0].newInstance(keyTypeClass);
-            } else {
-               t = (T) constructorsT[0].newInstance();
-            }
-         }
+		try {
+			Constructor<?>[] constructorsT = persistentClass.getConstructors();
+			T t = null;
+			t = instancePersistentObject(constructorsT);
 
-         HectorHelper.populateEntity(t, key, result);
-         return t;
-      } catch (Exception e) {
-         throw new RuntimeException("Error creating persistent class", e);
-      }
-   }
+			HectorHelper.populateEntity(t, key, result);
+			return t;
+		} catch (Exception e) {
+			throw new RuntimeException("Error creating persistent class", e);
+		}
+	}
 
-   /**
-    * Delete.
-    * 
-    * @param key
-    *           the key
-    * @see http://wiki.apache.org/cassandra/DistributedDeletes
-    */
-   public void delete(KeyType key) {
-      Mutator<Object> mutator = HFactory.createMutator(keySpace, SerializerTypeInferer.getSerializer(keyTypeClass));
-      mutator.delete(key, columnFamilyName, null, SerializerTypeInferer.getSerializer(keyTypeClass));
-   }
+	/**
+	 * @param constructorsT
+	 * @return
+	 * @throws Exception
+	 */
+	private T instancePersistentObject(Constructor<?>[] constructorsT)
+			throws Exception {
+		T t;
+		Constructor<?> theConstructor = null;
+		theConstructor = getConstructorWithParam(constructorsT, keyTypeClass);
+		if (theConstructor == null) {
+			theConstructor = getDefaultConstructor(constructorsT);
+			if (theConstructor != null) {
+				t = (T) theConstructor.newInstance();
+			} else {
+				throw new Exception("No suitable constructor found for class "
+						+ this.persistentClass);
+			}
+		} else {
+			t = (T) theConstructor.newInstance(keyTypeClass);
+		}
 
-   /**
-    * Gets the keys.
-    * 
-    * @return the keys
-    */
-   public Set<KeyType> getKeys() {
-      int rows = 0;
-      int pagination = 50;
-      Set<KeyType> rowKeys = new HashSet<KeyType>();
+		return t;
+	}
 
-      Row<Object, String, byte[]> lastRow = null;
+	private Constructor<?> getDefaultConstructor(Constructor<?>[] constructorsT) {
+		Constructor<?> result = null;
+		if (constructorsT != null) {
+			for (int i = 0; i < constructorsT.length; i++) {
+				Class<?>[] paramArray = constructorsT[i].getParameterTypes();
+				if (paramArray == null || paramArray.length == 0) {
+					result = constructorsT[i];
+				}
+			}
+		}
+		return result;
+	}
 
-      do {
-         RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
-                  .createRangeSlicesQuery(keySpace, SerializerTypeInferer.getSerializer(keyTypeClass),
-                           StringSerializer.get(), BytesArraySerializer.get());
-         rangeSlicesQuery.setColumnFamily(columnFamilyName);
-         if (lastRow != null) {
-            rangeSlicesQuery.setKeys(lastRow.getKey(), "");
-         } else {
-            rangeSlicesQuery.setKeys(null, null);
-         }
-         rangeSlicesQuery.setReturnKeysOnly();
-         rangeSlicesQuery.setRange(null, null, false, keyTypeClass.getDeclaredFields().length);
-         rangeSlicesQuery.setRowCount(pagination);
-         QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery.execute();
-         OrderedRows<Object, String, byte[]> orderedRows = result.get();
-         rows = orderedRows.getCount();
+	Constructor<?> getConstructorWithParam(Constructor<?>[] constructorsT,
+			Class<KeyType> keyTypeClass) {
+		Constructor<?> result = null;
+		if (constructorsT != null) {
+			for (int i = 0; i < constructorsT.length; i++) {
+				Type[] paramArray = constructorsT[i].getParameterTypes();
+				if (paramArray != null
+						&& paramArray.length == 1
+						&& (paramArray[0].equals(keyTypeClass) || Object.class
+								.equals(paramArray[0]))) {
+					result = constructorsT[i];
+				}
+			}
+		}
+		return result;
+	}
 
-         for (Row<Object, String, byte[]> row : orderedRows) {
-            if (!row.getColumnSlice().getColumns().isEmpty()) {
-               rowKeys.add((KeyType) row.getKey());
-            }
-         }
+	/**
+	 * Delete.
+	 * 
+	 * @param key
+	 *            the key
+	 * @see http://wiki.apache.org/cassandra/DistributedDeletes
+	 */
+	public void delete(KeyType key) {
+		Mutator<Object> mutator = HFactory.createMutator(keySpace,
+				SerializerTypeInferer.getSerializer(keyTypeClass));
+		mutator.delete(key, columnFamilyName, null,
+				SerializerTypeInferer.getSerializer(keyTypeClass));
+	}
 
-         lastRow = orderedRows.peekLast();
+	/**
+	 * Gets the keys.
+	 * 
+	 * @return the keys
+	 */
+	public Set<KeyType> getKeys() {
+		int rows = 0;
+		int pagination = 50;
+		Set<KeyType> rowKeys = new HashSet<KeyType>();
 
-      } while (rows == pagination);
+		Row<Object, String, byte[]> lastRow = null;
 
-      return rowKeys;
+		do {
+			RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
+					.createRangeSlicesQuery(keySpace,
+							SerializerTypeInferer.getSerializer(keyTypeClass),
+							StringSerializer.get(), BytesArraySerializer.get());
+			rangeSlicesQuery.setColumnFamily(columnFamilyName);
+			if (lastRow != null) {
+				rangeSlicesQuery.setKeys(lastRow.getKey(), "");
+			} else {
+				rangeSlicesQuery.setKeys(null, null);
+			}
+			rangeSlicesQuery.setReturnKeysOnly();
+			rangeSlicesQuery.setRange(null, null, false,
+					keyTypeClass.getDeclaredFields().length);
+			rangeSlicesQuery.setRowCount(pagination);
+			QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
+					.execute();
+			OrderedRows<Object, String, byte[]> orderedRows = result.get();
+			rows = orderedRows.getCount();
 
-   }
+			for (Row<Object, String, byte[]> row : orderedRows) {
+				if (!row.getColumnSlice().getColumns().isEmpty()) {
+					rowKeys.add((KeyType) row.getKey());
+				}
+			}
 
-   /**
-    * Find items.
-    * 
-    * @param keys
-    *           the keys
-    * @param rangeFrom
-    *           the range from
-    * @param rangeTo
-    *           the range to
-    * @return the sets the
-    */
-   public Set<T> findItems(final List<KeyType> keys, final String rangeFrom, final String rangeTo) {
+			lastRow = orderedRows.peekLast();
 
-      Set<T> items = new HashSet<T>();
+		} while (rows == pagination);
 
-      MultigetSliceQuery<Object, String, byte[]> multigetSliceQuery = HFactory.createMultigetSliceQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
+		return rowKeys;
 
-      multigetSliceQuery.setColumnFamily(columnFamilyName);
-      multigetSliceQuery.setKeys(keys.toArray());
-      multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
+	}
 
-      QueryResult<Rows<Object, String, byte[]>> result = multigetSliceQuery.execute();
+	/**
+	 * Find items.
+	 * 
+	 * @param keys
+	 *            the keys
+	 * @param rangeFrom
+	 *            the range from
+	 * @param rangeTo
+	 *            the range to
+	 * @return the sets the
+	 */
+	public Set<T> findItems(final List<KeyType> keys, final String rangeFrom,
+			final String rangeTo) {
 
-      for (Row<Object, String, byte[]> row : result.get()) {
-         if (!row.getColumnSlice().getColumns().isEmpty()) {
-            items.add((T) row.getColumnSlice());
-         }
-      }
+		Set<T> items = new HashSet<T>();
 
-      return items;
-   }
+		MultigetSliceQuery<Object, String, byte[]> multigetSliceQuery = HFactory
+				.createMultigetSliceQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						StringSerializer.get(), BytesArraySerializer.get());
 
-   /**
-    * Find items.
-    * 
-    * @param keys
-    *           the keys
-    * @param rangeFrom
-    *           the range from
-    * @param rangeTo
-    *           the range to
-    * @return the sets the
-    */
-   public Map<KeyType, Map<Long, String>> findItems(final List<KeyType> keys, final Long rangeFrom, final Long rangeTo) {
+		multigetSliceQuery.setColumnFamily(columnFamilyName);
+		multigetSliceQuery.setKeys(keys.toArray());
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
 
-      Map<KeyType, Map<Long, String>> items = new HashMap<KeyType, Map<Long, String>>();
+		QueryResult<Rows<Object, String, byte[]>> result = multigetSliceQuery
+				.execute();
 
-      MultigetSliceQuery<Object, Long, byte[]> multigetSliceQuery = HFactory.createMultigetSliceQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), LongSerializer.get(), BytesArraySerializer.get());
+		for (Row<Object, String, byte[]> row : result.get()) {
+			if (!row.getColumnSlice().getColumns().isEmpty()) {
+				items.add((T) row.getColumnSlice());
+			}
+		}
 
-      multigetSliceQuery.setColumnFamily(columnFamilyName);
-      multigetSliceQuery.setKeys(keys.toArray());
-      multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
+		return items;
+	}
 
-      QueryResult<Rows<Object, Long, byte[]>> result = multigetSliceQuery.execute();
+	/**
+	 * Find items.
+	 * 
+	 * @param keys
+	 *            the keys
+	 * @param rangeFrom
+	 *            the range from
+	 * @param rangeTo
+	 *            the range to
+	 * @return the sets the
+	 */
+	public Map<KeyType, Map<Long, String>> findItems(final List<KeyType> keys,
+			final Long rangeFrom, final Long rangeTo) {
 
-      for (Row<Object, Long, byte[]> row : result.get()) {
-         if (!row.getColumnSlice().getColumns().isEmpty()) {
-            HashMap<Long, String> columnHashMap = new HashMap<Long, String>();
+		Map<KeyType, Map<Long, String>> items = new HashMap<KeyType, Map<Long, String>>();
 
-            ColumnSlice<Long, byte[]> col = row.getColumnSlice();
-            List<HColumn<Long, byte[]>> columns = col.getColumns();
-            for (HColumn<Long, byte[]> hColumn : columns) {
-               columnHashMap.put(hColumn.getName(), hColumn.getValue().toString());
-            }
+		MultigetSliceQuery<Object, Long, byte[]> multigetSliceQuery = HFactory
+				.createMultigetSliceQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						LongSerializer.get(), BytesArraySerializer.get());
 
-            items.put((KeyType) row.getKey(), columnHashMap);
-         }
-      }
+		multigetSliceQuery.setColumnFamily(columnFamilyName);
+		multigetSliceQuery.setKeys(keys.toArray());
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
 
-      return items;
-   }
+		QueryResult<Rows<Object, Long, byte[]>> result = multigetSliceQuery
+				.execute();
 
-   public Map<KeyType, Map<Long, Object>> findItemsWithObjectColumnValues(final List<KeyType> keys,
-            final Long rangeFrom, final Long rangeTo) {
+		for (Row<Object, Long, byte[]> row : result.get()) {
+			if (!row.getColumnSlice().getColumns().isEmpty()) {
+				HashMap<Long, String> columnHashMap = new HashMap<Long, String>();
 
-      Map<KeyType, Map<Long, Object>> items = new HashMap<KeyType, Map<Long, Object>>();
+				ColumnSlice<Long, byte[]> col = row.getColumnSlice();
+				List<HColumn<Long, byte[]>> columns = col.getColumns();
+				for (HColumn<Long, byte[]> hColumn : columns) {
+					columnHashMap.put(hColumn.getName(), hColumn.getValue()
+							.toString());
+				}
 
-      MultigetSliceQuery<Object, Long, Object> multigetSliceQuery = HFactory.createMultigetSliceQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), LongSerializer.get(), ObjectSerializer.get());
+				items.put((KeyType) row.getKey(), columnHashMap);
+			}
+		}
 
-      multigetSliceQuery.setColumnFamily(columnFamilyName);
-      multigetSliceQuery.setKeys(keys.toArray());
-      multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
+		return items;
+	}
 
-      QueryResult<Rows<Object, Long, Object>> result = multigetSliceQuery.execute();
+	public Map<KeyType, Map<Long, Object>> findItemsWithObjectColumnValues(
+			final List<KeyType> keys, final Long rangeFrom, final Long rangeTo) {
 
-      for (Row<Object, Long, Object> row : result.get()) {
-         if (!row.getColumnSlice().getColumns().isEmpty()) {
-            HashMap<Long, Object> columnHashMap = new HashMap<Long, Object>();
+		Map<KeyType, Map<Long, Object>> items = new HashMap<KeyType, Map<Long, Object>>();
 
-            ColumnSlice<Long, Object> col = row.getColumnSlice();
-            List<HColumn<Long, Object>> columns = col.getColumns();
-            for (HColumn<Long, Object> hColumn : columns) {
-               columnHashMap.put(hColumn.getName(), hColumn.getValue());
-            }
+		MultigetSliceQuery<Object, Long, Object> multigetSliceQuery = HFactory
+				.createMultigetSliceQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						LongSerializer.get(), ObjectSerializer.get());
 
-            items.put((KeyType) row.getKey(), columnHashMap);
-         }
-      }
+		multigetSliceQuery.setColumnFamily(columnFamilyName);
+		multigetSliceQuery.setKeys(keys.toArray());
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
 
-      return items;
-   }
+		QueryResult<Rows<Object, Long, Object>> result = multigetSliceQuery
+				.execute();
 
-   public Map<KeyType, Map<Long, String>> findItemsWithStringColumnValues(final List<KeyType> keys,
-            final Long rangeFrom, final Long rangeTo) {
+		for (Row<Object, Long, Object> row : result.get()) {
+			if (!row.getColumnSlice().getColumns().isEmpty()) {
+				HashMap<Long, Object> columnHashMap = new HashMap<Long, Object>();
 
-      Map<KeyType, Map<Long, String>> items = new HashMap<KeyType, Map<Long, String>>();
+				ColumnSlice<Long, Object> col = row.getColumnSlice();
+				List<HColumn<Long, Object>> columns = col.getColumns();
+				for (HColumn<Long, Object> hColumn : columns) {
+					columnHashMap.put(hColumn.getName(), hColumn.getValue());
+				}
 
-      MultigetSliceQuery<Object, Long, String> multigetSliceQuery = HFactory.createMultigetSliceQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), LongSerializer.get(), StringSerializer.get());
+				items.put((KeyType) row.getKey(), columnHashMap);
+			}
+		}
 
-      multigetSliceQuery.setColumnFamily(columnFamilyName);
-      multigetSliceQuery.setKeys(keys.toArray());
-      multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
+		return items;
+	}
 
-      QueryResult<Rows<Object, Long, String>> result = multigetSliceQuery.execute();
+	public Map<KeyType, Map<Long, String>> findItemsWithStringColumnValues(
+			final List<KeyType> keys, final Long rangeFrom, final Long rangeTo) {
 
-      for (Row<Object, Long, String> row : result.get()) {
-         if (!row.getColumnSlice().getColumns().isEmpty()) {
-            HashMap<Long, String> columnHashMap = new HashMap<Long, String>();
+		Map<KeyType, Map<Long, String>> items = new HashMap<KeyType, Map<Long, String>>();
 
-            ColumnSlice<Long, String> col = row.getColumnSlice();
-            List<HColumn<Long, String>> columns = col.getColumns();
-            for (HColumn<Long, String> hColumn : columns) {
-               columnHashMap.put(hColumn.getName(), hColumn.getValue());
-            }
+		MultigetSliceQuery<Object, Long, String> multigetSliceQuery = HFactory
+				.createMultigetSliceQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						LongSerializer.get(), StringSerializer.get());
 
-            items.put((KeyType) row.getKey(), columnHashMap);
-         }
-      }
+		multigetSliceQuery.setColumnFamily(columnFamilyName);
+		multigetSliceQuery.setKeys(keys.toArray());
+		multigetSliceQuery.setRange(rangeFrom, rangeTo, false, 50);
 
-      return items;
-   }
+		QueryResult<Rows<Object, Long, String>> result = multigetSliceQuery
+				.execute();
 
-   /**
-    * Contains.
-    * 
-    * @param key
-    *           the key
-    * @return true, if successful
-    * @see http://wiki.apache.org/cassandra/DistributedDeletes
-    */
-   public boolean containsKey(KeyType key) {
-      RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory.createRangeSlicesQuery(keySpace,
-               SerializerTypeInferer.getSerializer(keyTypeClass), StringSerializer.get(), BytesArraySerializer.get());
-      rangeSlicesQuery.setColumnFamily(columnFamilyName);
-      rangeSlicesQuery.setKeys(key, key);
-      rangeSlicesQuery.setReturnKeysOnly();
-      rangeSlicesQuery.setRange("", "", false, 1);
-      rangeSlicesQuery.setRowCount(1);
-      QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery.execute();
-      OrderedRows<Object, String, byte[]> orderedRows = result.get();
+		for (Row<Object, Long, String> row : result.get()) {
+			if (!row.getColumnSlice().getColumns().isEmpty()) {
+				HashMap<Long, String> columnHashMap = new HashMap<Long, String>();
 
-      return (!orderedRows.getList().isEmpty() && !orderedRows.getByKey(key).getColumnSlice().getColumns().isEmpty());
-   }
+				ColumnSlice<Long, String> col = row.getColumnSlice();
+				List<HColumn<Long, String>> columns = col.getColumns();
+				for (HColumn<Long, String> hColumn : columns) {
+					columnHashMap.put(hColumn.getName(), hColumn.getValue());
+				}
+
+				items.put((KeyType) row.getKey(), columnHashMap);
+			}
+		}
+
+		return items;
+	}
+
+	/**
+	 * Contains.
+	 * 
+	 * @param key
+	 *            the key
+	 * @return true, if successful
+	 * @see http://wiki.apache.org/cassandra/DistributedDeletes
+	 */
+	public boolean containsKey(KeyType key) {
+		RangeSlicesQuery<Object, String, byte[]> rangeSlicesQuery = HFactory
+				.createRangeSlicesQuery(keySpace,
+						SerializerTypeInferer.getSerializer(keyTypeClass),
+						StringSerializer.get(), BytesArraySerializer.get());
+		rangeSlicesQuery.setColumnFamily(columnFamilyName);
+		rangeSlicesQuery.setKeys(key, key);
+		rangeSlicesQuery.setReturnKeysOnly();
+		rangeSlicesQuery.setRange("", "", false, 1);
+		rangeSlicesQuery.setRowCount(1);
+		QueryResult<OrderedRows<Object, String, byte[]>> result = rangeSlicesQuery
+				.execute();
+		OrderedRows<Object, String, byte[]> orderedRows = result.get();
+
+		return (!orderedRows.getList().isEmpty() && !orderedRows.getByKey(key)
+				.getColumnSlice().getColumns().isEmpty());
+	}
 
 }

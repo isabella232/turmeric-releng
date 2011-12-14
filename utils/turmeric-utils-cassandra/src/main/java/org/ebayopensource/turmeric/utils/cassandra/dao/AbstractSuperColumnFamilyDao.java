@@ -9,6 +9,7 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -243,16 +244,58 @@ public abstract class AbstractSuperColumnFamilyDao<SKeyType, ST, KeyType, T> {
 
       try {
          Constructor<?>[] constructorsST = superPersistentClass.getConstructors();
-         ST st = (ST) constructorsST[0].newInstance(superKeyTypeClass, keyTypeClass);
+         Constructor<?> superPersistentClassCstrctr = getSuperPersistentClassConstructor(constructorsST);
+         ST st = (ST) superPersistentClassCstrctr.newInstance(superKeyTypeClass, keyTypeClass);
 
          Constructor<?>[] constructorsT = persistentClass.getConstructors();
-         T t = (T) constructorsT[0].newInstance(keyTypeClass);
-
+         Constructor<?> persistentClassConstructor = getPersistentClassConstructor(constructorsT);
+         T t = (T) persistentClassConstructor.newInstance(keyTypeClass);
          HectorHelper.populateSuperEntity(st, t, superKey, keyTypeClass, superColumns);
          return st;
       } catch (Exception e) {
          throw new RuntimeException("Error creating persistent class", e);
       }
+   }
+
+   /**
+    * @param constructorsT
+    * @return
+    * @throws InstantiationException
+    * @throws IllegalAccessException
+    * @throws IllegalArgumentException
+    * @throws InvocationTargetException
+    */
+   private Constructor<?> getPersistentClassConstructor(Constructor<?>[] constructorsT) throws InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+      Constructor<?> result = null;
+      for (int i = 0; i < constructorsT.length; i++) {
+         if (constructorsT[i].getParameterTypes().length == 1) {
+            result = constructorsT[i];
+            break;
+         }
+      }
+      return result;
+   }
+
+   /**
+    * @param constructorsST
+    * @return
+    * @throws InstantiationException
+    * @throws IllegalAccessException
+    * @throws IllegalArgumentException
+    * @throws InvocationTargetException
+    */
+   private Constructor<?> getSuperPersistentClassConstructor(Constructor<?>[] constructorsST)
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      Constructor<?> result = null;
+      for (int i = 0; i < constructorsST.length; i++) {
+         if (constructorsST[i].getParameterTypes().length == 2) {
+            result = constructorsST[i];
+            break;
+         }
+      }
+      return result;
    }
 
    /**
