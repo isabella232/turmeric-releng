@@ -103,7 +103,12 @@ public class UAT434Test {
 		sendMessageReqV1.setUserName("uat-turmeric");
 		sendMessageReqV1
 				.setMessage("This message was created in " + new Date());
-		consumerV1.sendMessage(sendMessageReqV1);
+		try {
+			consumerV1.sendMessage(sendMessageReqV1);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// now, get the messages back
 		// now, i get the messages back

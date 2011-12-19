@@ -12,18 +12,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.ebayopensource.turmeric.utils.cassandra.dao.AbstractColumnFamilyDao;
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDao;
 import org.ebayopensource.turmeric.utils.cassandra.dao.ModelDaoImpl;
 import org.ebayopensource.turmeric.utils.cassandra.model.Model;
+import org.ebayopensource.turmeric.utils.cassandra.model.ModelWithDefaultAndMultiParamConstructor;
+import org.ebayopensource.turmeric.utils.cassandra.model.ModelWithMultipleParamConstructor;
 import org.ebayopensource.turmeric.utils.cassandra.server.CassandraTestManager;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,11 +38,36 @@ import org.junit.Test;
  */
 public class ModelDaoStringTest extends BaseTest {
 
+	public static class AnotherModelDaoImpl extends
+			AbstractColumnFamilyDao<String, ModelWithMultipleParamConstructor> {
+
+		public AnotherModelDaoImpl() {
+			super(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE, String.class,
+					ModelWithMultipleParamConstructor.class,
+					"TestAnotherStringCF");
+
+		}
+	};
+
+	public static class YetAnotherModelDaoImpl
+			extends
+			AbstractColumnFamilyDao<String, ModelWithDefaultAndMultiParamConstructor> {
+
+		public YetAnotherModelDaoImpl() {
+			super(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE, String.class,
+					ModelWithDefaultAndMultiParamConstructor.class,
+					"TestYetAnotherStringCF");
+
+		}
+	};
+
 	/** The test model dao. */
 	private static ModelDao testModelDao;
 
 	/** The KEY. */
-	private static String KEY = "testModel_001";
+	private String KEY = null;
+
+	private Map columns;
 
 	/**
 	 * Before.
@@ -51,6 +80,13 @@ public class ModelDaoStringTest extends BaseTest {
 		CassandraTestManager.initialize();
 		testModelDao = new ModelDaoImpl(TURMERIC_TEST_CLUSTER, HOST, KEY_SPACE,
 				"TestStringCF", String.class);
+	}
+
+	@Before
+	public void setUp() {
+		columns = new HashMap<String, String>();
+		columns.put("coulmn1", "value1");
+		KEY = "testModel_" + Math.random();
 	}
 
 	@After
@@ -71,11 +107,11 @@ public class ModelDaoStringTest extends BaseTest {
 		// save
 		testModelDao.save(testModel);
 
-		//Contains
+		// Contains
 		assertTrue(testModelDao.containsKey(KEY + "test_save"));
 
 		// find
-		testModel = testModelDao.find(KEY+ "test_save");
+		testModel = testModelDao.find(KEY + "test_save");
 		assertNotNull(testModel);
 	}
 
@@ -154,12 +190,56 @@ public class ModelDaoStringTest extends BaseTest {
 
 	}
 
+	@Test
+	public void testFind() {
+		Model testModel = createModel();
+		columns = new HashMap<String, String>();
+		columns.put("coulmn1", "value1");
+		testModel.setColumns(columns);
+		testModelDao.save(testModel);
+
+		Model result = testModelDao.find(KEY);
+		assertNotNull(result);
+		assertEquals(KEY, result.getKey());
+		assertNotNull(result.getColumns());
+		assertEquals(1, result.getColumns().size());
+		assertEquals(columns, result.getColumns());
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testFindModelConstructorWithMultipleParams() {
+		ModelWithMultipleParamConstructor<String> theModelObj = new ModelWithMultipleParamConstructor<String>(
+				"X", 2l, 2.3f);
+		theModelObj.setColumns(columns);
+		theModelObj.setKey(KEY);
+		AbstractColumnFamilyDao anotherDao = new AnotherModelDaoImpl();
+		anotherDao.save(KEY, theModelObj);
+
+		ModelWithMultipleParamConstructor result = (ModelWithMultipleParamConstructor) anotherDao
+				.find(KEY);
+		fail("The test should fail because there is no suitable constructor in ModelWithMultipleParamConstructor.class");
+	}
+
+	@Test
+	public void testFindModelWithDefaultAndMultiParamConstructor() {
+		ModelWithDefaultAndMultiParamConstructor<String> theModelObj = new ModelWithDefaultAndMultiParamConstructor<String>(
+				"X", 2l, 2.3f);
+		theModelObj.setColumns(columns);
+		theModelObj.setKey(KEY);
+		YetAnotherModelDaoImpl yetAnotherDao = new YetAnotherModelDaoImpl();
+		yetAnotherDao.save(KEY, theModelObj);
+
+		ModelWithDefaultAndMultiParamConstructor result = yetAnotherDao
+				.find(KEY);
+		assertNotNull(result);
+		assertEquals(KEY, result.getKey());
+		assertNotNull(result.getColumns());
+		assertEquals(columns, result.getColumns());
+	}
+
 	private Model createModel() {
 		Model testModel = new Model("");
 		testModel.setKey(KEY);
-		Map columns = new HashMap<String, String>();
-		columns.put("coulmn1","value1");
-		
 		testModel.setColumns(columns);
 		return testModel;
 	}

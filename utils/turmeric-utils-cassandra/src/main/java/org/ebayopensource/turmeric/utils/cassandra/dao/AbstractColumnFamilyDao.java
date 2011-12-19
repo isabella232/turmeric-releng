@@ -9,6 +9,7 @@
 package org.ebayopensource.turmeric.utils.cassandra.dao;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -135,28 +136,63 @@ public abstract class AbstractColumnFamilyDao<KeyType, T> {
       try {
          Constructor<?>[] constructorsT = persistentClass.getConstructors();
          T t = null;
-         if (constructorsT.length > 1) {
-            if (constructorsT[0].getParameterTypes().length == 1
-                     && constructorsT[0].getParameterTypes()[0].isAssignableFrom(keyTypeClass)) {
-               t = (T) constructorsT[0].newInstance(keyTypeClass);
-            } else {
-               t = (T) constructorsT[0].newInstance();
-            }
-         } else {
-            if (constructorsT[0].getParameterTypes().length == 1
-                     && (constructorsT[0].getParameterTypes()[0].isAssignableFrom(keyTypeClass) || Object.class
-                              .equals(constructorsT[0].getParameterTypes()[0]))) {
-               t = (T) constructorsT[0].newInstance(keyTypeClass);
-            } else {
-               t = (T) constructorsT[0].newInstance();
-            }
-         }
+         t = instancePersistentObject(constructorsT);
 
          HectorHelper.populateEntity(t, key, result);
          return t;
       } catch (Exception e) {
          throw new RuntimeException("Error creating persistent class", e);
       }
+   }
+
+   /**
+    * @param constructorsT
+    * @return
+    * @throws Exception
+    */
+   private T instancePersistentObject(Constructor<?>[] constructorsT) throws Exception {
+      T t;
+      Constructor<?> theConstructor = null;
+      theConstructor = getConstructorWithParam(constructorsT, keyTypeClass);
+      if (theConstructor == null) {
+         theConstructor = getDefaultConstructor(constructorsT);
+         if (theConstructor != null) {
+            t = (T) theConstructor.newInstance();
+         } else {
+            throw new Exception("No suitable constructor found for class " + this.persistentClass);
+         }
+      } else {
+         t = (T) theConstructor.newInstance(keyTypeClass);
+      }
+
+      return t;
+   }
+
+   private Constructor<?> getDefaultConstructor(Constructor<?>[] constructorsT) {
+      Constructor<?> result = null;
+      if (constructorsT != null) {
+         for (int i = 0; i < constructorsT.length; i++) {
+            Class<?>[] paramArray = constructorsT[i].getParameterTypes();
+            if (paramArray == null || paramArray.length == 0) {
+               result = constructorsT[i];
+            }
+         }
+      }
+      return result;
+   }
+
+   Constructor<?> getConstructorWithParam(Constructor<?>[] constructorsT, Class<KeyType> keyTypeClass) {
+      Constructor<?> result = null;
+      if (constructorsT != null) {
+         for (int i = 0; i < constructorsT.length; i++) {
+            Type[] paramArray = constructorsT[i].getParameterTypes();
+            if (paramArray != null && paramArray.length == 1
+                     && (paramArray[0].equals(keyTypeClass) || Object.class.equals(paramArray[0]))) {
+               result = constructorsT[i];
+            }
+         }
+      }
+      return result;
    }
 
    /**

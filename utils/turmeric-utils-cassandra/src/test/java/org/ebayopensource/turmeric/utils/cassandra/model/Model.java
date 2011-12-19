@@ -25,6 +25,9 @@ public class Model<K> {
 	 */
 	public Model(K keyType){
 	}
+	
+	public Model(){
+	}
 
 	/** The key. */
 	private K key;
