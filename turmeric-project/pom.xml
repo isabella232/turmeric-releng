@@ -5,7 +5,7 @@
    <groupId>org.ebayopensource.turmeric</groupId>
    <artifactId>turmeric-project</artifactId>
    <name>Turmeric Project</name>
-   <version>1.1.0.9</version>
+   <version>1.1.0.10</version>
    <packaging>pom</packaging>
    <url>https://www.ebayopensource.org</url>
    <properties>
@@ -62,8 +62,8 @@
                   <id>generate-source-jar</id>
                   <phase>package</phase>
                   <goals>
-                     <goal>jar</goal>
-                     <goal>test-jar</goal>
+                     <goal>jar-no-fork</goal>
+                     <goal>test-jar-no-fork</goal>
                   </goals>
                </execution>
             </executions>
